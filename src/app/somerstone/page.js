@@ -282,6 +282,7 @@ export default function SomerstoneHome() {
                         </div>
                     </div>
                 </div>
+            </div>
 
                 {/* External Scripts */}
                 <Script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" strategy="lazyOnload" onLoad={() => {

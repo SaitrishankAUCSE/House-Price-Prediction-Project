@@ -147,7 +147,7 @@ export function HoverFooter() {
         {
             title: "Platform",
             links: [
-                { label: "AI Predictor", href: "/predictor" },
+                { label: "AI Predictor", href: "/predict" },
                 { label: "Marketplace", href: "/listings" },
                 { label: "Analytics", href: "/analytics" },
                 { label: "Dashboard", href: "/dashboard" },

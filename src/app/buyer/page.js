@@ -92,7 +92,7 @@ function DiscoveryTab({ savedIds, onSave, onSelect }) {
 
     const filtered = useMemo(() => {
         let result = props.filter(p => {
-            if (filters.city && p.city !== filters.city) return false;
+            if (filters.city && !p.city.toLowerCase().includes(filters.city.toLowerCase())) return false;
             if (filters.type && p.type !== filters.type) return false;
             if (filters.bedrooms && p.bedrooms !== parseInt(filters.bedrooms)) return false;
             if (filters.minPrice && p.price < parseInt(filters.minPrice)) return false;
@@ -354,14 +354,19 @@ function PredictorTab() {
 
         // Simulate AI Processing & Image Generation
         setTimeout(() => {
-            const predicted = predictPrice(form);
-            const image = getPropertyImage(form);
+            try {
+                const predicted = predictPrice(form);
+                const image = getPropertyImage(form);
 
-            setGeneratedImage(image);
-            setResult(predicted); // Result updates AFTER generation
-            setLoading(false);
-            setGeneratingImage(false);
-        }, 3500); // 3.5s delay for "wow" factor
+                setGeneratedImage(image);
+                setResult(predicted); // Result updates AFTER generation
+            } catch (err) {
+                console.error("Prediction Error:", err);
+            } finally {
+                setLoading(false);
+                setGeneratingImage(false);
+            }
+        }, 1500); // 1.5s delay for "wow" factor
     };
 
     const trendData = monthlyTrends.map(m => ({ ...m, avgPrice: m.avgPrice / 100000 }));

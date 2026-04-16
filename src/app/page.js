@@ -23,11 +23,15 @@ export default function Home() {
                 </Link>
 
                 <div className="flex items-center gap-6">
-                    <div className="hidden md:flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity">
-                        <span className="material-symbols-outlined text-[#1a1a2e]">account_circle</span>
-                        <Link href="/login" className="font-semibold text-sm text-[#1a1a2e]">Log in</Link>
+                    <div className="hidden md:flex items-center gap-6 cursor-pointer transition-opacity">
+                        <Link href="/about" className="font-semibold text-sm text-[#1a1a2e] hover:text-[#e8632b] transition-colors">About Us</Link>
+                        <Link href="/agent" className="font-semibold text-sm text-[#1a1a2e] hover:text-[#e8632b] transition-colors">Agents</Link>
+                        <div className="flex items-center gap-2 hover:opacity-70">
+                            <span className="material-symbols-outlined text-[#1a1a2e]">account_circle</span>
+                            <Link href="/login" className="font-semibold text-sm text-[#1a1a2e]">Log in</Link>
+                        </div>
                     </div>
-                    <Link href="/predictor">
+                    <Link href="/predict">
                         <button className="bg-[#1a1a2e] text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-navy/90 transition-all shadow-lg shadow-black/5">
                             Predict price
                         </button>
