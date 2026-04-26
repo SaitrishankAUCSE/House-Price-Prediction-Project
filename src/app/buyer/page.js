@@ -68,15 +68,37 @@ function DiscoveryTab({ savedIds, onSave, onSelect }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let userProps = [];
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('userProperties');
+            if (saved) {
+                try { 
+                    userProps = JSON.parse(saved).map(p => ({
+                        ...p,
+                        marketTemp: p.marketTemp || 'hot',
+                        safetyScore: p.safetyScore || 85,
+                        commuteScore: p.commuteScore || 80,
+                        resalePotential: p.resalePotential || 12,
+                        daysListed: p.daysListed || 1,
+                        pricePerSqft: p.pricePerSqft || Math.round(p.price / (p.sqft || 1)),
+                        type: p.type || 'Apartment',
+                        status: p.status || 'active',
+                        trending: true,
+                        newListing: true
+                    })); 
+                } catch(e) {}
+            }
+        }
+
         fetch('/api/properties')
             .then(res => res.json())
             .then(data => {
-                setProps(data);
+                setProps([...userProps, ...data]);
                 setLoading(false);
             })
             .catch(err => {
                 console.error("Failed to fetch properties:", err);
-                setProps(properties); // Fallback to mock
+                setProps([...userProps, ...properties]); // Fallback to mock + user props
                 setLoading(false);
             });
     }, []);
