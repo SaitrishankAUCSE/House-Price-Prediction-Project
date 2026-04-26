@@ -369,6 +369,21 @@ function PredictorTab() {
         }, 1500); // 1.5s delay for "wow" factor
     };
 
+    // AUTO-RECALCULATE: Whenever form changes and a prediction already exists, instantly update the result
+    useEffect(() => {
+        if (result) {
+            try {
+                const predicted = predictPrice(form);
+                const image = getPropertyImage(form);
+                setGeneratedImage(image);
+                setResult(predicted);
+            } catch (err) {
+                console.error("Live Prediction Error:", err);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form]);
+
     const trendData = monthlyTrends.map(m => ({ ...m, avgPrice: m.avgPrice / 100000 }));
     const F = "w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-400/10";
     const L = "text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] mb-1.5 block";

@@ -261,9 +261,19 @@ export function predictPrice(features) {
         distanceMetro, highwayAccess, airportDistance, propertyType
     } = features;
 
-    // Base rates for cities
-    const baseRates = { "Mumbai": 25000, "Delhi": 15000, "Bangalore": 9000, "Hyderabad": 10000 };
-    let rate = baseRates[city] || 8000;
+    // Base rates for cities (derived from real market data per sqft)
+    const baseRates = {
+        "Mumbai": 26500, "Bangalore": 8200, "Gurgaon": 13500, "Hyderabad": 9800,
+        "New Delhi": 18000, "Delhi": 18000, "Pune": 7500, "Chennai": 6800,
+        "Kolkata": 6500, "Ahmedabad": 5500, "Noida": 6200, "Jaipur": 4800,
+        "Lucknow": 4200, "Chandigarh": 9500, "Surat": 4500, "Indore": 4000,
+        "Coimbatore": 5200, "Kochi": 5800, "Thane": 12500, "Navi Mumbai": 11000,
+        "Visakhapatnam": 3800, "Nagpur": 3500, "Ludhiana": 3200, "Bhopal": 3000,
+        "Patna": 3400, "Vadodara": 4000, "Ghaziabad": 4500, "Rajkot": 3400,
+        "Madurai": 3200, "Raipur": 2800, "Ranchi": 2600, "Guwahati": 3200,
+        "Thiruvananthapuram": 4800, "Vijayawada": 4200
+    };
+    let rate = baseRates[city] || 5000;
 
     // Apply locality variation
     if (locality) {
