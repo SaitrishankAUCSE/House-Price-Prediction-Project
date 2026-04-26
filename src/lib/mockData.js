@@ -277,16 +277,16 @@ export function predictPrice(features) {
 
     // Apply locality variation (Crucial for real-world accuracy)
     if (locality) {
-        // Elite / Premium Localities in India (Massive price multiplier)
+        // Elite / Premium Localities in India
         const eliteLocalities = /siripuram|bandra|jubilee|banjara|golf course|whitefield|powai|koregaon|gachibowli|andheri|juhu|worli|adyar|besant|salt lake|viman nagar|marathahalli|indiranagar|koramangala|bkc|south bombay|colaba/i;
         const premiumLocalities = /madhapur|hitech|electronic city|sarjapur|new town|rajarhat|dwarka|vasant|saket|anna nagar|velachery|seethammadhara|mvp colony/i;
         
-        if (locality.match(eliteLocalities)) rate *= 1.85; // 85% premium for elite areas
-        else if (locality.match(premiumLocalities)) rate *= 1.45; // 45% premium for prime areas
+        if (locality.match(eliteLocalities)) rate *= 1.4; // 40% premium for elite areas
+        else if (locality.match(premiumLocalities)) rate *= 1.2; // 20% premium for prime areas
 
-        // Deterministic micro-market variation (-10% to +20%)
+        // Deterministic micro-market variation (-5% to +10%)
         const hash = locality.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const variation = ((hash % 30) - 10) / 100;
+        const variation = ((hash % 15) - 5) / 100;
         rate *= (1 + variation);
     }
 
@@ -295,48 +295,60 @@ export function predictPrice(features) {
     if (propertyType === 'Independent House') rate *= 1.15;
     if (propertyType === 'Plot') rate *= 0.8;
 
-    // Adjustments
-    rate = rate * (1 + (floor > 10 ? 0.01 * (floor - 10) : 0)); // Floor rise
-    rate = rate * (1 - (age * 0.01)); // Depreciation
-    rate = rate * (1 + (bedrooms > 3 ? 0.1 : 0)); // Luxury premium for large apts
-    
+    let premiumPercent = 0;
+
     // Additional Structure Features
-    if (bathrooms > bedrooms) rate *= 1.05;
-    if (balconies > 1) rate *= 1.02;
-    if (unitPosition === 'Corner') rate *= 1.05;
-    if (parking === 'Covered') rate *= 1.08;
-    else if (parking === 'Open') rate *= 1.03;
-    if (servantRoom === 'Yes') rate *= 1.04;
-    if (studyRoom === 'Yes') rate *= 1.03;
+    if (bathrooms > bedrooms) premiumPercent += 2;
+    if (balconies > 1) premiumPercent += 1;
+    if (unitPosition === 'Corner') premiumPercent += 3;
+    if (parking === 'Covered') premiumPercent += 5;
+    else if (parking === 'Open') premiumPercent += 2;
+    if (servantRoom === 'Yes') premiumPercent += 3;
+    if (studyRoom === 'Yes') premiumPercent += 2;
 
     // Views & Directions
-    if (parkFacing === 'Yes') rate *= 1.05;
-    if (gardenView === 'Yes') rate *= 1.05;
-    if (seaLakeView === 'Yes') rate *= 1.15;
-    if (roadView === 'Yes') rate *= 0.98;
-    if (mainDoorFacing === 'East' || mainDoorFacing === 'North') rate *= 1.02;
+    if (parkFacing === 'Yes') premiumPercent += 2;
+    if (gardenView === 'Yes') premiumPercent += 2;
+    if (seaLakeView === 'Yes') premiumPercent += 5;
+    if (roadView === 'Yes') premiumPercent -= 2;
+    if (mainDoorFacing === 'East' || mainDoorFacing === 'North') premiumPercent += 1;
 
     // Amenities
     if (amenities && amenities.length > 0) {
-        rate *= (1 + (amenities.length * 0.01)); // +1% per amenity
-        if (amenities.includes('Swimming pool')) rate *= 1.05;
-        if (amenities.includes('Clubhouse')) rate *= 1.03;
+        premiumPercent += (amenities.length * 0.5); 
+        if (amenities.includes('Swimming pool')) premiumPercent += 3;
+        if (amenities.includes('Clubhouse')) premiumPercent += 2;
     }
 
     // Building & Legal
-    if (builderReputation === 'Premium') rate *= 1.15;
-    else if (builderReputation === 'Unknown') rate *= 0.95;
-    if (reraApproved === 'Yes') rate *= 1.02;
-    if (gatedCommunity === 'Yes') rate *= 1.05;
+    if (builderReputation === 'Premium') premiumPercent += 10;
+    else if (builderReputation === 'Unknown') premiumPercent -= 5;
+    if (reraApproved === 'Yes') premiumPercent += 1;
+    if (gatedCommunity === 'Yes') premiumPercent += 3;
 
-    // Connectivity (Penalty for being too far)
-    if (distanceMetro < 2) rate *= 1.05;
-    else if (distanceMetro > 10) rate *= 0.95;
+    // Connectivity
+    if (distanceMetro < 2) premiumPercent += 3;
+    else if (distanceMetro > 10) premiumPercent -= 2;
     
-    if (highwayAccess < 5) rate *= 1.03;
-    else if (highwayAccess > 15) rate *= 0.97;
+    if (highwayAccess < 5) premiumPercent += 2;
+    else if (highwayAccess > 15) premiumPercent -= 2;
     
-    if (airportDistance < 10) rate *= 1.02;
+    if (airportDistance < 10) premiumPercent += 1;
+
+    // Floor rise (0.5% per floor above 10)
+    if (floor > 10) premiumPercent += 0.5 * (floor - 10);
+    // Luxury space premium
+    if (bedrooms > 3) premiumPercent += 5;
+
+    // Cap the total feature premium/penalty (+50% to -20%)
+    premiumPercent = Math.max(-20, Math.min(50, premiumPercent));
+
+    // Apply net premium
+    rate = rate * (1 + (premiumPercent / 100));
+
+    // Depreciation (0.5% per year, capped at 40%)
+    const depreciation = Math.min(40, age * 0.5);
+    rate = rate * (1 - (depreciation / 100));
 
     const predicted = Math.round(rate * sqft);
     const low = Math.round(predicted * 0.92);
