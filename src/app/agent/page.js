@@ -405,12 +405,8 @@ function FinancialsTab() {
 // ==================== MAIN PAGE ====================
 const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { id: 'leads', label: 'Leads', icon: 'person_search' },
     { id: 'crm', label: 'CRM', icon: 'contacts' },
-    { id: 'pipeline', label: 'Pipeline', icon: 'view_kanban' },
-    { id: 'productivity', label: 'Productivity', icon: 'task_alt' },
-    { id: 'listings', label: 'Listings Intel', icon: 'analytics' },
-    { id: 'financials', label: 'Financials', icon: 'account_balance' },
+    { id: 'pipeline', label: 'Pipeline', icon: 'view_kanban' }
 ];
 
 export default function AgentPage() {

@@ -63,8 +63,8 @@ export default function SellerPage() {
         }
     }, []);
 
-    // Get unique cities from properties
-    const cities = [...new Set(properties.map(p => p.city))].sort();
+    // Get unique cities from all properties
+    const cities = [...new Set([...localProperties, ...properties].map(p => p.city))].sort();
 
     const executeMLTask = (taskName) => {
         setMlProcessing(true);
@@ -134,11 +134,6 @@ export default function SellerPage() {
     const tabs = [
         { id: 'listings', label: 'My Listings', icon: 'home_work' },
         { id: 'pricing', label: 'AI Pricing', icon: 'auto_graph', highlight: true },
-        { id: 'leads', label: 'Buyer Leads', icon: 'group', badge: 3 },
-        { id: 'performance', label: 'Performance', icon: 'insights' },
-        { id: 'visits', label: 'Visits & Offers', icon: 'event' },
-        { id: 'documents', label: 'Documents', icon: 'description' },
-        { id: 'promotion', label: 'Promotion', icon: 'campaign' },
         { id: 'ai', label: 'AI Insights', icon: 'psychology' }
     ];
 

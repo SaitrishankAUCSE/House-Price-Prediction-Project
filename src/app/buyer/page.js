@@ -109,7 +109,7 @@ function DiscoveryTab({ savedIds, onSave, onSelect }) {
         setFilters(prev => ({ ...prev, city: cityParam || '' }));
     }, [searchParams]);
 
-    const cities = useMemo(() => [...new Set(properties.map(p => p.city))].sort(), []);
+    const cities = useMemo(() => [...new Set(props.map(p => p.city))].sort(), [props]);
     const types = useMemo(() => [...new Set(properties.map(p => p.type))].sort(), []);
 
     const filtered = useMemo(() => {
@@ -1301,16 +1301,11 @@ function SmartPicksTab({ savedIds, onSave, onSelect }) {
 const tabs = [
     { id: 'predictor', label: 'AI Predictor', icon: 'auto_awesome', highlight: true },
     { id: 'discovery', label: 'Discovery', icon: 'explore' },
-    { id: 'detail', label: 'Property Detail', icon: 'info' },
-    { id: 'financial', label: 'Financial', icon: 'account_balance' },
-    { id: 'saved', label: 'Saved', icon: 'bookmark' },
-    { id: 'actions', label: 'Actions', icon: 'touch_app' },
-    { id: 'journey', label: 'My Journey', icon: 'route' },
-    { id: 'smart', label: 'Smart Picks', icon: 'recommend' },
+    { id: 'saved', label: 'Saved', icon: 'bookmark' }
 ];
 
 export default function BuyerPage() {
-    const [activeTab, setActiveTab] = useState('marketplace');
+    const [activeTab, setActiveTab] = useState('predictor');
 
 
     const [savedIds, setSavedIds] = useState(new Set([1, 4, 9]));
