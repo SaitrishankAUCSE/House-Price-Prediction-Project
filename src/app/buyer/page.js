@@ -752,7 +752,7 @@ function PredictorTab() {
                                                     <span className="material-symbols-outlined text-[10px] text-white/50 group-hover/btn:text-white transition-colors">open_in_new</span>
                                                 </a>
                                                 <a
-                                                    href={`https://housing.com/in/buy/search?q=${encodeURIComponent(form.locality ? `${form.locality}, ${form.city}` : form.city)}&f=${form.bedrooms}`}
+                                                    href={`https://housing.com/in/buy/${encodeURIComponent((form.locality || form.city).toLowerCase().replace(/\s+/g, '-'))}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 backdrop-blur-md border border-red-500/30 rounded-lg flex items-center gap-2 transition-all group/btn cursor-pointer relative z-50"
