@@ -261,25 +261,32 @@ export function predictPrice(features) {
         distanceMetro, highwayAccess, airportDistance, propertyType
     } = features;
 
-    // Base rates for cities (derived from real market data per sqft)
+    // Base rates for cities (derived from real market data per sqft - 2026 adjusted)
     const baseRates = {
-        "Mumbai": 26500, "Bangalore": 8200, "Gurgaon": 13500, "Hyderabad": 9800,
-        "New Delhi": 18000, "Delhi": 18000, "Pune": 7500, "Chennai": 6800,
-        "Kolkata": 6500, "Ahmedabad": 5500, "Noida": 6200, "Jaipur": 4800,
-        "Lucknow": 4200, "Chandigarh": 9500, "Surat": 4500, "Indore": 4000,
-        "Coimbatore": 5200, "Kochi": 5800, "Thane": 12500, "Navi Mumbai": 11000,
-        "Visakhapatnam": 3800, "Nagpur": 3500, "Ludhiana": 3200, "Bhopal": 3000,
-        "Patna": 3400, "Vadodara": 4000, "Ghaziabad": 4500, "Rajkot": 3400,
-        "Madurai": 3200, "Raipur": 2800, "Ranchi": 2600, "Guwahati": 3200,
-        "Thiruvananthapuram": 4800, "Vijayawada": 4200
+        "Mumbai": 26500, "Bangalore": 9200, "Gurgaon": 14500, "Hyderabad": 10500,
+        "New Delhi": 18000, "Delhi": 18000, "Pune": 8500, "Chennai": 7200,
+        "Kolkata": 6500, "Ahmedabad": 5800, "Noida": 7200, "Jaipur": 5200,
+        "Lucknow": 4800, "Chandigarh": 9500, "Surat": 5000, "Indore": 4500,
+        "Coimbatore": 5500, "Kochi": 6200, "Thane": 13500, "Navi Mumbai": 12000,
+        "Visakhapatnam": 4800, "Nagpur": 4200, "Ludhiana": 3800, "Bhopal": 3500,
+        "Patna": 3800, "Vadodara": 4200, "Ghaziabad": 5000, "Rajkot": 3800,
+        "Madurai": 3600, "Raipur": 3200, "Ranchi": 3200, "Guwahati": 3800,
+        "Thiruvananthapuram": 5200, "Vijayawada": 4800
     };
     let rate = baseRates[city] || 5000;
 
-    // Apply locality variation
+    // Apply locality variation (Crucial for real-world accuracy)
     if (locality) {
-        if (locality.match(/bandra|jubilee|golf/i)) rate *= 1.25;
+        // Elite / Premium Localities in India (Massive price multiplier)
+        const eliteLocalities = /siripuram|bandra|jubilee|banjara|golf course|whitefield|powai|koregaon|gachibowli|andheri|juhu|worli|adyar|besant|salt lake|viman nagar|marathahalli|indiranagar|koramangala|bkc|south bombay|colaba/i;
+        const premiumLocalities = /madhapur|hitech|electronic city|sarjapur|new town|rajarhat|dwarka|vasant|saket|anna nagar|velachery|seethammadhara|mvp colony/i;
+        
+        if (locality.match(eliteLocalities)) rate *= 1.85; // 85% premium for elite areas
+        else if (locality.match(premiumLocalities)) rate *= 1.45; // 45% premium for prime areas
+
+        // Deterministic micro-market variation (-10% to +20%)
         const hash = locality.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const variation = ((hash % 20) - 10) / 100;
+        const variation = ((hash % 30) - 10) / 100;
         rate *= (1 + variation);
     }
 
