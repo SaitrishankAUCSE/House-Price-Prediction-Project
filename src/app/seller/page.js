@@ -640,7 +640,6 @@ export default function SellerPage() {
                         </div>
                     </div>
             </div>
-
             {/* Add New Property Modal */}
             <AnimatePresence>
                 {isAddModalOpen && (
@@ -734,6 +733,7 @@ export default function SellerPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+        </div>
         </AuthGuard>
     );
 }
