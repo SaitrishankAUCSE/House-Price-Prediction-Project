@@ -56,6 +56,13 @@ export default function SellerPage() {
         features: ''
     });
 
+    const [notification, setNotification] = useState(null);
+
+    const showNotification = (message, type) => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 4000);
+    };
+
     useEffect(() => {
         const saved = localStorage.getItem('userProperties');
         if (saved) {
@@ -98,7 +105,7 @@ export default function SellerPage() {
         localStorage.setItem('userProperties', JSON.stringify(updated));
         setIsAddModalOpen(false);
         setNewProperty({ name: '', locality: '', city: selectedCity, price: '', bedrooms: '', sqft: '', description: '', image: '', features: '' });
-        alert('Property listed successfully on HomieNest!');
+        showNotification('Property listed successfully on HomieNest!', 'success');
     };
 
     const handleImageUpload = (e) => {
@@ -112,14 +119,14 @@ export default function SellerPage() {
 
     const handleDeleteProperty = (propertyId, propertyName) => {
         if (!propertyId.toString().startsWith('user_')) {
-            alert("System properties cannot be deleted. You can only delete properties you have manually added.");
+            showNotification("System properties cannot be deleted. You can only delete properties you manually added.", "error");
             return;
         }
         if (confirm(`Are you sure you want to delete "${propertyName}"? This action cannot be undone.`)) {
             const updated = localProperties.filter(p => p.id !== propertyId);
             setLocalProperties(updated);
             localStorage.setItem('userProperties', JSON.stringify(updated));
-            alert('Property removed from your portfolio.');
+            showNotification('Property removed from your portfolio.', 'success');
         }
     };
 
@@ -171,7 +178,7 @@ export default function SellerPage() {
                             {myListings.map((property) => (
                                 <div key={property.id} className="group relative bg-white/5 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden hover:border-primary/30 transition-all duration-300">
                                     <div className="aspect-[16/10] relative overflow-hidden">
-                                        <img src={property.image} alt={property.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                        <img src={property.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt={property.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         <div className="absolute top-4 left-4">
                                             <span className={cn(
                                                 "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border",
@@ -728,6 +735,24 @@ export default function SellerPage() {
                                 </div>
                             </form>
                         </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <AnimatePresence>
+                {notification && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="fixed bottom-8 right-8 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#111] border border-white/10 shadow-2xl shadow-primary/20"
+                    >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${notification.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                            {notification.type === 'success' ? <Check size={16} /> : <Target size={16} />}
+                        </div>
+                        <p className="text-sm font-bold text-white tracking-wide">{notification.message}</p>
+                        <button onClick={() => setNotification(null)} className="ml-2 p-1 text-white/40 hover:text-white transition-colors">
+                            <X size={14} />
+                        </button>
                     </motion.div>
                 )}
             </AnimatePresence>

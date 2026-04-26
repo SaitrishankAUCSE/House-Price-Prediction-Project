@@ -18,7 +18,7 @@ function PropertyCard({ property, onSave, saved, onSelect, compact }) {
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group cursor-pointer" onClick={() => onSelect?.(property)}>
             <div className="relative h-44 bg-gradient-to-br from-slate-800 to-slate-700 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={property.image} alt={property.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+                <img src={property.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt={property.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-white ${property.status === 'active' ? 'bg-green-500' : property.status === 'pending' ? 'bg-amber-500' : 'bg-slate-400'}`}>{property.status}</span>
