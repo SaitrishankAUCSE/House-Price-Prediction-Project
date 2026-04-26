@@ -311,6 +311,8 @@ function PredictorTab() {
         businessHubDistance: 10
     });
     const [result, setResult] = useState(null);
+    const [error, setError] = useState(null);
+    const [hasPredicted, setHasPredicted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [openSection, setOpenSection] = useState(null); // 'structure', 'view', 'amenities', 'legal', 'intent'
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -320,6 +322,21 @@ function PredictorTab() {
     // AI Image Generation State
     const [generatedImage, setGeneratedImage] = useState(null);
     const [generatingImage, setGeneratingImage] = useState(false);
+
+    const validateForm = (f) => {
+        if (f.sqft < 50) return "Area cannot be less than 50 sq.ft.";
+        if (f.sqft > 50000) return "Area is too large for standard residential property.";
+        if (f.totalFloors > 163) return "Total floors cannot exceed 163 (Burj Khalifa limit).";
+        if (f.floor > f.totalFloors && f.propertyType !== 'Plot') return "Floor cannot be greater than Total Floors.";
+        if (f.bathrooms > f.bedrooms + 3) return "Too many bathrooms for the given number of bedrooms.";
+        if (f.balconies > f.bedrooms + 3) return "Too many balconies for the given property size.";
+        if (f.age > 150) return "Property age seems unrealistically high.";
+        if ((f.propertyType === 'Villa' || f.propertyType === 'Independent House') && f.totalFloors > 10) return "Villas/Independent houses typically don't have that many floors.";
+        if ((f.propertyType === 'Villa' || f.propertyType === 'Independent House') && f.floor > 10) return "Floor number too high for a Villa/Independent house.";
+        if (f.floor < -5) return "Floor cannot be lower than -5.";
+        if (f.bedrooms < 1 && f.propertyType !== 'Plot') return "Bedrooms must be at least 1.";
+        return null;
+    };
 
     const getPropertyImage = (form) => {
         const { propertyType, bedrooms, amenities } = form;
@@ -348,6 +365,14 @@ function PredictorTab() {
     };
 
     const handlePredict = () => {
+        const err = validateForm(form);
+        if (err) {
+            setError(err);
+            setResult(null);
+            return;
+        }
+        setError(null);
+        setHasPredicted(true);
         setLoading(true);
         setGeneratingImage(true);
         // Do NOT clear result here to keep UI stable or to allow "Generating" state to render in place
@@ -371,18 +396,26 @@ function PredictorTab() {
 
     // AUTO-RECALCULATE: Whenever form changes and a prediction already exists, instantly update the result
     useEffect(() => {
-        if (result) {
-            try {
-                const predicted = predictPrice(form);
-                const image = getPropertyImage(form);
-                setGeneratedImage(image);
-                setResult(predicted);
-            } catch (err) {
-                console.error("Live Prediction Error:", err);
-            }
+        if (!hasPredicted) return;
+
+        const err = validateForm(form);
+        if (err) {
+            setError(err);
+            setResult(null);
+            return;
+        }
+        setError(null);
+
+        try {
+            const predicted = predictPrice(form);
+            const image = getPropertyImage(form);
+            setGeneratedImage(image);
+            setResult(predicted);
+        } catch (err) {
+            console.error("Live Prediction Error:", err);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [form]);
+    }, [form, hasPredicted]);
 
     const trendData = monthlyTrends.map(m => ({ ...m, avgPrice: m.avgPrice / 100000 }));
     const F = "w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-400/10";
@@ -669,7 +702,14 @@ function PredictorTab() {
                 </div>
 
                 <div>
-                    {(result || loading) ? (
+                    {error ? (
+                        <div className="bg-white/5 backdrop-blur-sm border border-red-500/30 rounded-2xl p-8 h-full flex flex-col items-center justify-center text-center space-y-4">
+                            <span className="material-symbols-outlined text-5xl text-red-500">error</span>
+                            <h3 className="text-lg font-bold text-white">Invalid Configuration</h3>
+                            <p className="text-sm text-red-200">{error}</p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest mt-4">Please adjust your inputs to continue</p>
+                        </div>
+                    ) : (result || loading) ? (
                         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 relative h-full">
                             {/* Structured Header */}
                             <div className="flex items-start justify-between mb-8">
