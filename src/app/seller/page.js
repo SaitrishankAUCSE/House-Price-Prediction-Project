@@ -42,6 +42,26 @@ export default function SellerPage() {
     const [mlProcessing, setMlProcessing] = useState(false);
     const [mlFeedback, setMlFeedback] = useState("");
     const [selectedCity, setSelectedCity] = useState('Mumbai');
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [localProperties, setLocalProperties] = useState([]);
+    const [newProperty, setNewProperty] = useState({
+        name: '',
+        locality: '',
+        city: 'Mumbai',
+        price: '',
+        bedrooms: '',
+        sqft: '',
+        description: '',
+        image: '',
+        features: ''
+    });
+
+    useEffect(() => {
+        const saved = localStorage.getItem('userProperties');
+        if (saved) {
+            try { setLocalProperties(JSON.parse(saved)); } catch (e) {}
+        }
+    }, []);
 
     // Get unique cities from properties
     const cities = [...new Set(properties.map(p => p.city))].sort();
@@ -59,11 +79,53 @@ export default function SellerPage() {
         }, 1000);
     };
 
+    const handleAddProperty = (e) => {
+        e.preventDefault();
+        const propertyData = {
+            ...newProperty,
+            id: 'user_' + Date.now(),
+            price: Number(newProperty.price),
+            bedrooms: Number(newProperty.bedrooms),
+            sqft: Number(newProperty.sqft),
+            status: 'Active',
+            views: 0, saves: 0, inquiries: 0,
+            amenities: newProperty.features.split(',').map(f => f.trim())
+        };
+        const updated = [propertyData, ...localProperties];
+        setLocalProperties(updated);
+        localStorage.setItem('userProperties', JSON.stringify(updated));
+        setIsAddModalOpen(false);
+        setNewProperty({ name: '', locality: '', city: selectedCity, price: '', bedrooms: '', sqft: '', description: '', image: '', features: '' });
+        alert('Property listed successfully on HomieNest!');
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setNewProperty({ ...newProperty, image: reader.result });
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleDeleteProperty = (propertyId, propertyName) => {
+        if (!propertyId.toString().startsWith('user_')) {
+            alert("System properties cannot be deleted. You can only delete properties you have manually added.");
+            return;
+        }
+        if (confirm(`Are you sure you want to delete "${propertyName}"? This action cannot be undone.`)) {
+            const updated = localProperties.filter(p => p.id !== propertyId);
+            setLocalProperties(updated);
+            localStorage.setItem('userProperties', JSON.stringify(updated));
+            alert('Property removed from your portfolio.');
+        }
+    };
+
     // Filter properties by selected city
-    const cityProperties = properties.filter(p => p.city === selectedCity);
-    const myListings = cityProperties.slice(0, 8).map((p, i) => ({
+    const allCityProperties = [...localProperties, ...properties].filter(p => p.city === selectedCity);
+    const myListings = allCityProperties.slice(0, 8).map((p, i) => ({
         ...p,
-        status: p.status === 'sold' ? 'Sold' : p.status === 'pending' ? 'Negotiation' : 'Active',
+        status: p.status === 'sold' ? 'Sold' : p.status === 'pending' ? 'Negotiation' : p.status || 'Active',
         views: p.views || 1240 + i * 250,
         saves: p.saves || 85 + i * 12,
         inquiries: p.inquiries || 12 + i * 3
@@ -101,7 +163,7 @@ export default function SellerPage() {
                                         <option key={c} value={c} className="bg-black text-white">{c}</option>
                                     ))}
                                 </select>
-                                <button onClick={() => alert('Add New Property: This feature will open the property listing wizard. Coming soon!')} className="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
+                                <button onClick={() => setIsAddModalOpen(true)} className="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
                                     <Plus size={16} />
                                     Add New
                                 </button>
@@ -139,7 +201,7 @@ export default function SellerPage() {
                                                     <Copy size={14} />
                                                 </button>
                                             </div>
-                                            <button onClick={() => { if (confirm(`Are you sure you want to delete "${property.name}"? This action cannot be undone.`)) { alert('Property removed from your portfolio.'); } }} title="Delete" className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors cursor-pointer">
+                                            <button onClick={() => handleDeleteProperty(property.id, property.name)} title="Delete" className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors cursor-pointer">
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
@@ -577,8 +639,101 @@ export default function SellerPage() {
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
+
+            {/* Add New Property Modal */}
+            <AnimatePresence>
+                {isAddModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.95, y: 20 }}
+                            className="bg-[#111] border border-white/10 rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl shadow-primary/20 relative"
+                        >
+                            <div className="sticky top-0 bg-[#111] z-10 flex justify-between items-center p-6 border-b border-white/10">
+                                <div>
+                                    <h2 className="text-2xl font-bold font-['Anton'] uppercase tracking-wider text-white">Post New Property</h2>
+                                    <p className="text-xs text-white/40 uppercase tracking-widest font-bold">List your property like OLX to reach thousands of buyers</p>
+                                </div>
+                                <button onClick={() => setIsAddModalOpen(false)} className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-white/60 hover:text-white">
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleAddProperty} className="p-6 space-y-6">
+                                {/* Image Upload */}
+                                <div>
+                                    <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Property Photos</label>
+                                    <div className="relative border-2 border-dashed border-white/20 rounded-2xl p-8 flex flex-col items-center justify-center bg-white/5 hover:bg-white/10 hover:border-primary/50 transition-all cursor-pointer group overflow-hidden">
+                                        <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10" required />
+                                        {newProperty.image ? (
+                                            <img src={newProperty.image} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                        ) : (
+                                            <>
+                                                <Upload size={32} className="text-primary mb-3 group-hover:-translate-y-1 transition-transform" />
+                                                <span className="text-sm font-bold text-white mb-1">Click or drag to upload</span>
+                                                <span className="text-xs text-white/40">High quality photos attract 3x more buyers</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Property Title</label>
+                                        <input type="text" required placeholder="e.g. Modern 3BHK in Hiranandani" value={newProperty.name} onChange={e => setNewProperty({...newProperty, name: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-white/20" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Asking Price (₹)</label>
+                                        <input type="number" required placeholder="e.g. 15000000" value={newProperty.price} onChange={e => setNewProperty({...newProperty, price: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-white/20" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">City</label>
+                                        <select value={newProperty.city} onChange={e => setNewProperty({...newProperty, city: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 appearance-none">
+                                            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Locality / Area</label>
+                                        <input type="text" required placeholder="e.g. Powai" value={newProperty.locality} onChange={e => setNewProperty({...newProperty, locality: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-white/20" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Bedrooms (BHK)</label>
+                                        <input type="number" required placeholder="e.g. 3" value={newProperty.bedrooms} onChange={e => setNewProperty({...newProperty, bedrooms: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-white/20" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Super Built-up Area (Sqft)</label>
+                                        <input type="number" required placeholder="e.g. 1500" value={newProperty.sqft} onChange={e => setNewProperty({...newProperty, sqft: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-white/20" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Features / Amenities (Comma Separated)</label>
+                                    <input type="text" placeholder="e.g. Pool, Gym, 24x7 Security, Parking" value={newProperty.features} onChange={e => setNewProperty({...newProperty, features: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-white/20" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Description</label>
+                                    <textarea required rows={4} placeholder="Describe your property, nearby landmarks, facing, etc." value={newProperty.description} onChange={e => setNewProperty({...newProperty, description: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 placeholder:text-white/20 resize-none" />
+                                </div>
+
+                                <div className="pt-4 border-t border-white/10 flex justify-end gap-4">
+                                    <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest transition-all">Cancel</button>
+                                    <button type="submit" className="px-8 py-3 rounded-xl bg-primary hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                                        <Upload size={16} /> Post Listing
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </AuthGuard>
     );
 }
