@@ -692,7 +692,7 @@ function PredictorTab() {
                                 </div>
                             </div>
 
-                            {/* AI IMAGE VISUALIZATION */}
+                            {/* AI MAP & IMAGE VISUALIZATION */}
                             <div className="mb-8 relative rounded-2xl overflow-hidden aspect-video group bg-black/50">
                                 <AnimatePresence mode="wait">
                                     {generatingImage && (
@@ -713,30 +713,35 @@ function PredictorTab() {
                                             transition={{ duration: 0.8, ease: "easeOut" }}
                                             className="relative w-full h-full"
                                         >
-                                            <img src={generatedImage} alt="AI Visualization" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent to-transparent opacity-60"></div>
-                                            <div className="absolute top-3 left-3 px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-2">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                                                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider">Web Search Result</span>
-                                            </div>
+                                            {/* Google Maps Embed - Colorful (no grayscale) */}
+                                            <iframe
+                                                className="w-full h-full border-0"
+                                                loading="lazy"
+                                                allowFullScreen
+                                                referrerPolicy="no-referrer-when-downgrade"
+                                                src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(form.locality ? `${form.locality}, ${form.city}` : form.city)}&zoom=15&maptype=roadmap`}
+                                            ></iframe>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent to-transparent opacity-40 pointer-events-none"></div>
 
                                             {/* VERIFY ON GOOGLE BUTTON */}
-                                            <div className="absolute bottom-3 right-3 flex flex-col gap-2 items-end">
+                                            <div className="absolute bottom-3 right-3 flex flex-col gap-2 items-end z-10">
                                                 <a
-                                                    href={`https://www.google.com/search?tbm=isch&q=${form.bedrooms} BHK ${form.propertyType} in ${form.locality || form.city} real photos`}
+                                                    href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(`${form.bedrooms} BHK ${form.propertyType} in ${form.locality || form.city} real photos`)}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-lg flex items-center gap-2 transition-all group/btn"
+                                                    onClick={(e) => { e.stopPropagation(); window.open(e.currentTarget.href, '_blank'); }}
+                                                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-lg flex items-center gap-2 transition-all group/btn cursor-pointer"
                                                 >
                                                     <img src="https://www.google.com/favicon.ico" alt="Google" className="w-3 h-3 opacity-70 group-hover/btn:opacity-100 transition-opacity" />
                                                     <span className="text-[10px] font-bold text-white/70 group-hover/btn:text-white uppercase tracking-wider transition-colors">View Real Images on Google</span>
                                                     <span className="material-symbols-outlined text-[10px] text-white/50 group-hover/btn:text-white transition-colors">open_in_new</span>
                                                 </a>
                                                 <a
-                                                    href={`https://housing.com/in/buy/search?q=${form.locality ? `${form.locality}, ${form.city}` : form.city}&f=${form.bedrooms}`}
+                                                    href={`https://housing.com/in/buy/search?q=${encodeURIComponent(form.locality ? `${form.locality}, ${form.city}` : form.city)}&f=${form.bedrooms}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 backdrop-blur-md border border-red-500/30 rounded-lg flex items-center gap-2 transition-all group/btn"
+                                                    onClick={(e) => { e.stopPropagation(); window.open(e.currentTarget.href, '_blank'); }}
+                                                    className="px-3 py-1.5 bg-red-600/20 hover:bg-red-600/40 backdrop-blur-md border border-red-500/30 rounded-lg flex items-center gap-2 transition-all group/btn cursor-pointer"
                                                 >
                                                     <span className="text-[10px] font-bold text-red-100 group-hover/btn:text-white uppercase tracking-wider transition-colors">Check Housing.com</span>
                                                     <span className="material-symbols-outlined text-[10px] text-red-200 group-hover/btn:text-white transition-colors">apartment</span>

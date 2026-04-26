@@ -21,9 +21,11 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" className={`${inter.variable} dark`} suppressHydrationWarning>
             <head>
+                <link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800,900&display=swap" rel="stylesheet" />
                 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
                 <link href="https://fonts.googleapis.com/css2?family=Anton&family=DotGothic16&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Racing+Sans+One&display=swap" rel="stylesheet" />
             </head>
+
             <body className="font-display text-navy transition-colors duration-300">
                 <ThemeProvider
                     attribute="class"

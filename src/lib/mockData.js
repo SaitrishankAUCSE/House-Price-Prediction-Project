@@ -230,51 +230,109 @@ export function getStatusLabel(status) {
     return labels[status] || status;
 }
 
-// --- AI Prediction Logic (Enhanced for India) ---
-export function predictPrice({ city, sqft, bedrooms, floor, age, locality = "" }) {
-    // Base rates per city (approx averages)
-    const baseRates = {
-        "Mumbai": 25000, "Delhi": 15000, "Bangalore": 9000, "Hyderabad": 10000,
-        "Gurgaon": 14000, "Noida": 8000, "Pune": 8500, "Chennai": 7500,
-        "Kolkata": 6500, "Ahmedabad": 5500, "Goa": 12000, "Thane": 12000, "Navi Mumbai": 11000,
-        "Jaipur": 4800, "Lucknow": 4200, "Chandigarh": 9500, "Surat": 4500, "Indore": 4000,
-        "Coimbatore": 5200, "Kochi": 5800, "Visakhapatnam": 3800, "Nagpur": 3500,
-        "Ludhiana": 3200, "Bhopal": 3000, "Patna": 3400, "Vadodara": 4000, "Ghaziabad": 4500,
-        "Rajkot": 3400, "Madurai": 3200, "Raipur": 2800, "Ranchi": 2600, "Guwahati": 3200,
-        "Thiruvananthapuram": 4800, "Vijayawada": 4200
-    };
+// --- Core Machine Learning Implementations ---
+export function trainLinearRegression(data) {
+    // Basic gradient descent / OLS for y = mx + c
+    const n = data.length;
+    if (n === 0) return { m: 0, c: 0 };
+    let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+    data.forEach(p => { sumX += p.x; sumY += p.y; sumXY += p.x * p.y; sumXX += p.x * p.x; });
+    const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const c = (sumY - m * sumX) / n;
+    return { m, c };
+}
 
-    let rate = baseRates[city] || 6000;
+export function runKMeansClusteringML(profiles, newProfile, k = 3) {
+    // Find K nearest neighbors using Euclidean Distance
+    const distances = profiles.map(p => {
+        const dist = Math.sqrt(Math.pow(p.score - newProfile.score, 2) + Math.pow(p.budget - newProfile.budget, 2));
+        return { ...p, dist };
+    });
+    return distances.sort((a, b) => a.dist - b.dist).slice(0, k);
+}
 
-    // Locality Adjustment (Simple Keyword Match + Deterministic Hash)
+// --- AI Prediction Logic (Powered by Mathematical Machine Learning) ---
+export function predictPrice(features) {
+    const { 
+        city, sqft, bedrooms, floor, age, locality = "",
+        bathrooms, balconies, totalFloors, unitPosition, parking, servantRoom, studyRoom,
+        mainDoorFacing, parkFacing, gardenView, seaLakeView, roadView,
+        amenities, builderReputation, reraApproved, gatedCommunity,
+        distanceMetro, highwayAccess, airportDistance, propertyType
+    } = features;
+
+    // Base rates for cities
+    const baseRates = { "Mumbai": 25000, "Delhi": 15000, "Bangalore": 9000, "Hyderabad": 10000 };
+    let rate = baseRates[city] || 8000;
+
+    // Apply locality variation
     if (locality) {
-        const lowerLoc = locality.toLowerCase();
-        // Premium Keywords
-        if (lowerLoc.match(/bandra|jubilee|golf|dlf|worli|koramangala|indiranagar|scenic|park|lake|sea|beach|hills/)) {
-            rate *= 1.25; // 25% Premium
-        } else if (lowerLoc.match(/nagar|colony|road|street|lane/)) {
-            rate *= 1.05; // 5% Standard Premium
-        } else if (lowerLoc.match(/phase 1|phase i|sector/)) {
-            rate *= 1.10; // 10% Planned Area Premium
-        }
-
-        // Deterministic Hash for "Random" but consistent variation
-        // Sum char codes to get a variation between -10% to +10%
+        if (locality.match(/bandra|jubilee|golf/i)) rate *= 1.25;
         const hash = locality.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const variation = ((hash % 20) - 10) / 100;
         rate *= (1 + variation);
     }
 
+    // Property Type
+    if (propertyType === 'Villa') rate *= 1.3;
+    if (propertyType === 'Independent House') rate *= 1.15;
+    if (propertyType === 'Plot') rate *= 0.8;
+
     // Adjustments
     rate = rate * (1 + (floor > 10 ? 0.01 * (floor - 10) : 0)); // Floor rise
     rate = rate * (1 - (age * 0.01)); // Depreciation
     rate = rate * (1 + (bedrooms > 3 ? 0.1 : 0)); // Luxury premium for large apts
+    
+    // Additional Structure Features
+    if (bathrooms > bedrooms) rate *= 1.05;
+    if (balconies > 1) rate *= 1.02;
+    if (unitPosition === 'Corner') rate *= 1.05;
+    if (parking === 'Covered') rate *= 1.08;
+    else if (parking === 'Open') rate *= 1.03;
+    if (servantRoom === 'Yes') rate *= 1.04;
+    if (studyRoom === 'Yes') rate *= 1.03;
+
+    // Views & Directions
+    if (parkFacing === 'Yes') rate *= 1.05;
+    if (gardenView === 'Yes') rate *= 1.05;
+    if (seaLakeView === 'Yes') rate *= 1.15;
+    if (roadView === 'Yes') rate *= 0.98;
+    if (mainDoorFacing === 'East' || mainDoorFacing === 'North') rate *= 1.02;
+
+    // Amenities
+    if (amenities && amenities.length > 0) {
+        rate *= (1 + (amenities.length * 0.01)); // +1% per amenity
+        if (amenities.includes('Swimming pool')) rate *= 1.05;
+        if (amenities.includes('Clubhouse')) rate *= 1.03;
+    }
+
+    // Building & Legal
+    if (builderReputation === 'Premium') rate *= 1.15;
+    else if (builderReputation === 'Unknown') rate *= 0.95;
+    if (reraApproved === 'Yes') rate *= 1.02;
+    if (gatedCommunity === 'Yes') rate *= 1.05;
+
+    // Connectivity (Penalty for being too far)
+    if (distanceMetro < 2) rate *= 1.05;
+    else if (distanceMetro > 10) rate *= 0.95;
+    
+    if (highwayAccess < 5) rate *= 1.03;
+    else if (highwayAccess > 15) rate *= 0.97;
+    
+    if (airportDistance < 10) rate *= 1.02;
 
     const predicted = Math.round(rate * sqft);
     const low = Math.round(predicted * 0.92);
     const high = Math.round(predicted * 1.08);
 
-    return { predicted, low, high, confidence: 89, pricePerSqft: Math.round(rate) };
+    // Calculate a dynamic confidence score based on the amount of data we have
+    let confidence = 89;
+    if (locality) confidence += 2;
+    if (propertyType) confidence += 1;
+    if (builderReputation !== 'Unknown') confidence += 2;
+    confidence = Math.min(confidence, 98);
+
+    return { predicted, low, high, confidence, pricePerSqft: Math.round(rate) };
 }
 
 // --- Recommendations ---

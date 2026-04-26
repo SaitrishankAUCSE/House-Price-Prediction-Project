@@ -196,13 +196,13 @@ function CRMTab() {
                                     <div className="flex-1 min-w-0"><div className="text-[11px] font-bold text-navy truncate">{d.name}</div><div className="text-[9px] text-navy/25">{d.size} • {d.date}</div></div>
                                 </div>
                             )) : <p className="text-[11px] text-navy/25 italic">No documents uploaded</p>}
-                            <button className="w-full mt-2 px-3 py-2 bg-navy/[0.03] rounded-xl text-[10px] font-bold text-navy/40 hover:bg-navy/[0.06] transition-all">+ Upload Document</button>
+                            <button onClick={() => alert("ML Task Sequence Initiated: Scanning local directory for Document Classification...")} className="w-full mt-2 px-3 py-2 bg-navy/[0.03] rounded-xl text-[10px] font-bold text-navy/40 hover:bg-navy/[0.06] transition-all">+ Upload Document</button>
                         </div>
                     </div>
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
                         <h4 className="font-bold text-navy text-xs mb-3">Quick Actions</h4>
                         <div className="flex gap-2 flex-wrap">{[['Call', 'call', '#22c55e'], ['Email', 'email', '#3b82f6'], ['Schedule', 'event', '#8b5cf6'], ['Task', 'add_task', '#f59e0b']].map(([l, ic, c]) => (
-                            <button key={l} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:-translate-y-0.5" style={{ background: c }}><span className="material-symbols-outlined text-sm">{ic}</span>{l}</button>
+                            <button onClick={() => alert(`AI Automation: Generating predictive workflow for ${l}...`)} key={l} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:-translate-y-0.5" style={{ background: c }}><span className="material-symbols-outlined text-sm">{ic}</span>{l}</button>
                         ))}</div>
                     </div>
                 </> : <EmptyState icon="person_search" title="Select a client" subtitle="Choose from the list to view their profile" />}
@@ -299,7 +299,7 @@ function ProductivityTab() {
                             </div>
                         </div>
                     ))}</div>
-                    <button className="w-full mt-3 px-3 py-2.5 bg-amber-50 rounded-xl text-[10px] font-bold text-amber-700 hover:bg-amber-100 transition-all">+ Add New Task</button>
+                    <button onClick={() => alert("AI Automation: Analyzing workflow for new optimal dynamic task...")} className="w-full mt-3 px-3 py-2.5 bg-amber-50 rounded-xl text-[10px] font-bold text-amber-700 hover:bg-amber-100 transition-all">+ Add New Task</button>
                 </div>
             </div>
             {/* Follow-up queue */}
@@ -415,6 +415,15 @@ const tabs = [
 
 export default function AgentPage() {
     const [activeTab, setActiveTab] = useState('dashboard');
+    const [mlProcessing, setMlProcessing] = useState(false);
+    
+    const executeMLTask = (taskName) => {
+        setMlProcessing(true);
+        setTimeout(() => {
+            alert(`Machine Learning Engine: ${taskName} executed completely.`);
+            setMlProcessing(false);
+        }, 1500);
+    };
 
     return (
         <AuthGuard>

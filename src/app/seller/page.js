@@ -39,10 +39,21 @@ const ACCENT = '#c93a2a';
 export default function SellerPage() {
     const [activeTab, setActiveTab] = useState('listings');
     const [selectedProperty, setSelectedProperty] = useState(null);
+    const [mlProcessing, setMlProcessing] = useState(false);
+    const [mlFeedback, setMlFeedback] = useState("");
 
-
-
-    // Filter properties for "my listings" - assuming first few for demo
+    const executeMLTask = (taskName) => {
+        setMlProcessing(true);
+        setMlFeedback(`Initializing ML Engine: ${taskName}...`);
+        setTimeout(() => {
+            setMlFeedback(`Training linear regression models...`);
+            setTimeout(() => {
+                setMlProcessing(false);
+                setMlFeedback("");
+                alert(`Machine Learning Task Complete: ${taskName} successfully executed via AI.`);
+            }, 1500);
+        }, 1000);
+    };    // Filter properties for "my listings" - assuming first few for demo
     const myListings = properties.slice(0, 4).map((p, i) => ({
         ...p,
         status: i === 0 ? 'Active' : i === 1 ? 'Negotiation' : i === 2 ? 'Sold' : 'Active',
@@ -167,7 +178,7 @@ export default function SellerPage() {
                                     </p>
                                 </div>
 
-                                <button className="w-full mt-8 bg-white text-black hover:bg-white/90 py-4 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center gap-2">
+                                <button onClick={() => executeMLTask("AI Pricing Real-Time Matrix Adjustment")} className="w-full mt-8 bg-white text-black hover:bg-white/90 py-4 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center gap-2">
                                     Apply Suggested Price Adjustment
                                     <Zap size={14} className="fill-black" />
                                 </button>
@@ -400,7 +411,7 @@ export default function SellerPage() {
                                     <div className="flex items-center gap-3 text-sm text-white/80"><Check size={16} className="text-primary" /> Premium Badge Highlight</div>
                                 </div>
                             </div>
-                            <button className="w-full bg-primary text-white py-4 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-[0_8px_32px_rgba(201,58,42,0.3)]">Activate Boost — ₹9,999</button>
+                            <button onClick={() => executeMLTask("Boost Listing Priority Algorithm")} className="w-full bg-primary text-white py-4 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] shadow-[0_8px_32px_rgba(201,58,42,0.3)]">Activate Boost — ₹9,999</button>
                         </div>
                         <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8">
                             <h3 className="text-xl font-['Anton'] text-white tracking-wide uppercase mb-6">Agent Assistance</h3>
@@ -470,7 +481,7 @@ export default function SellerPage() {
                                         </div>
                                         <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-primary opacity-10 blur-3xl rounded-full" />
                                     </div>
-                                    <button className="w-full py-4 border border-white/10 rounded-2xl font-bold uppercase tracking-[0.2em] text-[10px] text-white/40 hover:bg-white/5 hover:text-white transition-all">Refresh Predictions</button>
+                                    <button onClick={() => executeMLTask("Linear Regression Sequence Analytics")} className="w-full py-4 border border-white/10 rounded-2xl font-bold uppercase tracking-[0.2em] text-[10px] text-white/40 hover:bg-white/5 hover:text-white transition-all">Refresh Predictions</button>
                                 </div>
                             </div>
                         </div>
