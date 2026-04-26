@@ -41,6 +41,10 @@ export default function SellerPage() {
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [mlProcessing, setMlProcessing] = useState(false);
     const [mlFeedback, setMlFeedback] = useState("");
+    const [selectedCity, setSelectedCity] = useState('Mumbai');
+
+    // Get unique cities from properties
+    const cities = [...new Set(properties.map(p => p.city))].sort();
 
     const executeMLTask = (taskName) => {
         setMlProcessing(true);
@@ -53,13 +57,16 @@ export default function SellerPage() {
                 alert(`Machine Learning Task Complete: ${taskName} successfully executed via AI.`);
             }, 1500);
         }, 1000);
-    };    // Filter properties for "my listings" - assuming first few for demo
-    const myListings = properties.slice(0, 4).map((p, i) => ({
+    };
+
+    // Filter properties by selected city
+    const cityProperties = properties.filter(p => p.city === selectedCity);
+    const myListings = cityProperties.slice(0, 8).map((p, i) => ({
         ...p,
-        status: i === 0 ? 'Active' : i === 1 ? 'Negotiation' : i === 2 ? 'Sold' : 'Active',
-        views: 1240 + i * 250,
-        saves: 85 + i * 12,
-        inquiries: 12 + i * 3
+        status: p.status === 'sold' ? 'Sold' : p.status === 'pending' ? 'Negotiation' : 'Active',
+        views: p.views || 1240 + i * 250,
+        saves: p.saves || 85 + i * 12,
+        inquiries: p.inquiries || 12 + i * 3
     }));
 
     const tabs = [
@@ -78,18 +85,33 @@ export default function SellerPage() {
             case 'listings':
                 return (
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold font-['Anton'] uppercase tracking-wider">Property Portfolio</h2>
-                            <button className="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
-                                <Plus size={16} />
-                                Add New Property
-                            </button>
+                        <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+                            <div className="flex items-center gap-4">
+                                <h2 className="text-xl font-bold font-['Anton'] uppercase tracking-wider">Property Portfolio</h2>
+                                <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-white/40 uppercase tracking-widest">{myListings.length} Listings</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <select
+                                    value={selectedCity}
+                                    onChange={(e) => setSelectedCity(e.target.value)}
+                                    className="bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 appearance-none cursor-pointer hover:bg-white/10 transition-all"
+                                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'white\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: '36px' }}
+                                >
+                                    {cities.map(c => (
+                                        <option key={c} value={c} className="bg-black text-white">{c}</option>
+                                    ))}
+                                </select>
+                                <button onClick={() => alert('Add New Property: This feature will open the property listing wizard. Coming soon!')} className="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
+                                    <Plus size={16} />
+                                    Add New
+                                </button>
+                            </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {myListings.map((property) => (
                                 <div key={property.id} className="group relative bg-white/5 backdrop-blur-md border border-white/10 rounded-[2rem] overflow-hidden hover:border-primary/30 transition-all duration-300">
                                     <div className="aspect-[16/10] relative overflow-hidden">
-                                        <img src={property.image} alt={property.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                        <img src={property.image} alt={property.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         <div className="absolute top-4 left-4">
                                             <span className={cn(
                                                 "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md border",
@@ -102,21 +124,22 @@ export default function SellerPage() {
                                         </div>
                                     </div>
                                     <div className="p-6">
-                                        <h3 className="text-lg font-bold text-white mb-1 truncate">{property.title}</h3>
+                                        <h3 className="text-lg font-bold text-white mb-0.5 truncate">{property.name}</h3>
+                                        <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mb-2">{property.locality} · {property.bedrooms} BHK · {property.sqft} sqft</p>
                                         <p className="text-primary font-bold text-xl mb-4">{formatPrice(property.price)}</p>
                                         <div className="flex items-center justify-between pt-4 border-t border-white/5">
                                             <div className="flex gap-2">
-                                                <button title="Edit" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                                                <button onClick={() => alert(`Edit: Opening editor for "${property.name}". You can update photos, description, pricing, and amenities.`)} title="Edit" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors cursor-pointer">
                                                     <Edit size={14} />
                                                 </button>
-                                                <button title="Preview" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                                                <button onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(property.name + ' ' + property.city + ' real estate')}`, '_blank')} title="Preview on Google" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors cursor-pointer">
                                                     <ExternalLink size={14} />
                                                 </button>
-                                                <button title="Duplicate" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                                                <button onClick={() => { navigator.clipboard.writeText(`${property.name} — ${formatPrice(property.price)} | ${property.bedrooms} BHK, ${property.sqft} sqft in ${property.city}`); alert('Listing details copied to clipboard!'); }} title="Copy Listing" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors cursor-pointer">
                                                     <Copy size={14} />
                                                 </button>
                                             </div>
-                                            <button title="Delete" className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors">
+                                            <button onClick={() => { if (confirm(`Are you sure you want to delete "${property.name}"? This action cannot be undone.`)) { alert('Property removed from your portfolio.'); } }} title="Delete" className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors cursor-pointer">
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
