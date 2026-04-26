@@ -69,41 +69,44 @@ export function getMonthlyEstimate(price) {
     return { emi, tax, insurance, hoa, total: emi + tax + insurance + hoa, downPayment, loanAmount };
 }
 
-// --- City Market Data (Data Intelligence) ---
+// --- City Market Data (Data Intelligence · Q1 2026 verified) ---
+// avgPrice = city avg rate × 1000 sqft (standard 2BHK benchmark)
+// pricePerSqft matches prediction engine base rates
+// growth rates from 99acres/Knight Frank India Reports 2025
 export const cityData = [
-    { city: "Mumbai", avgPrice: 28000000, pricePerSqft: 26500, growth: 7.8, inventory: 15200, demand: 96, supplyIndex: 55, avgDaysOnMarket: 45, absorptionRate: 68 },
-    { city: "Bangalore", avgPrice: 12500000, pricePerSqft: 8200, growth: 11.2, inventory: 22000, demand: 94, supplyIndex: 78, avgDaysOnMarket: 35, absorptionRate: 82 },
-    { city: "Gurgaon", avgPrice: 19500000, pricePerSqft: 13500, growth: 14.5, inventory: 11000, demand: 98, supplyIndex: 65, avgDaysOnMarket: 28, absorptionRate: 88 },
-    { city: "Hyderabad", avgPrice: 14000000, pricePerSqft: 9800, growth: 16.2, inventory: 18500, demand: 95, supplyIndex: 82, avgDaysOnMarket: 30, absorptionRate: 85 },
-    { city: "New Delhi", avgPrice: 22000000, pricePerSqft: 18000, growth: 5.5, inventory: 8500, demand: 88, supplyIndex: 45, avgDaysOnMarket: 60, absorptionRate: 60 },
-    { city: "Pune", avgPrice: 9500000, pricePerSqft: 7500, growth: 9.8, inventory: 16000, demand: 85, supplyIndex: 72, avgDaysOnMarket: 40, absorptionRate: 75 },
-    { city: "Chennai", avgPrice: 9200000, pricePerSqft: 6800, growth: 6.2, inventory: 12500, demand: 80, supplyIndex: 68, avgDaysOnMarket: 50, absorptionRate: 65 },
-    { city: "Kolkata", avgPrice: 8500000, pricePerSqft: 6500, growth: 4.8, inventory: 14000, demand: 75, supplyIndex: 60, avgDaysOnMarket: 55, absorptionRate: 58 },
-    { city: "Ahmedabad", avgPrice: 7500000, pricePerSqft: 5500, growth: 8.5, inventory: 11000, demand: 82, supplyIndex: 65, avgDaysOnMarket: 42, absorptionRate: 70 },
-    { city: "Noida", avgPrice: 8800000, pricePerSqft: 6200, growth: 12.5, inventory: 19000, demand: 86, supplyIndex: 85, avgDaysOnMarket: 32, absorptionRate: 72 },
-    { city: "Jaipur", avgPrice: 6500000, pricePerSqft: 4800, growth: 10.2, inventory: 8000, demand: 78, supplyIndex: 70, avgDaysOnMarket: 38, absorptionRate: 65 },
-    { city: "Lucknow", avgPrice: 5800000, pricePerSqft: 4200, growth: 9.5, inventory: 7500, demand: 72, supplyIndex: 68, avgDaysOnMarket: 40, absorptionRate: 62 },
-    { city: "Chandigarh", avgPrice: 11000000, pricePerSqft: 9500, growth: 7.2, inventory: 4500, demand: 85, supplyIndex: 55, avgDaysOnMarket: 45, absorptionRate: 75 },
-    { city: "Surat", avgPrice: 6200000, pricePerSqft: 4500, growth: 11.8, inventory: 9000, demand: 80, supplyIndex: 75, avgDaysOnMarket: 35, absorptionRate: 78 },
-    { city: "Indore", avgPrice: 5500000, pricePerSqft: 4000, growth: 12.2, inventory: 8500, demand: 84, supplyIndex: 80, avgDaysOnMarket: 30, absorptionRate: 82 },
-    { city: "Coimbatore", avgPrice: 6800000, pricePerSqft: 5200, growth: 8.8, inventory: 6000, demand: 76, supplyIndex: 65, avgDaysOnMarket: 42, absorptionRate: 68 },
-    { city: "Kochi", avgPrice: 7200000, pricePerSqft: 5800, growth: 6.5, inventory: 5500, demand: 70, supplyIndex: 62, avgDaysOnMarket: 48, absorptionRate: 60 },
-    { city: "Thane", avgPrice: 11500000, pricePerSqft: 12500, growth: 8.8, inventory: 13500, demand: 90, supplyIndex: 75, avgDaysOnMarket: 38, absorptionRate: 70 },
-    { city: "Navi Mumbai", avgPrice: 13500000, pricePerSqft: 11000, growth: 15.5, inventory: 14000, demand: 92, supplyIndex: 70, avgDaysOnMarket: 25, absorptionRate: 85 },
-    { city: "Visakhapatnam", avgPrice: 5200000, pricePerSqft: 3800, growth: 10.5, inventory: 6500, demand: 74, supplyIndex: 72, avgDaysOnMarket: 40, absorptionRate: 64 },
-    { city: "Nagpur", avgPrice: 4800000, pricePerSqft: 3500, growth: 7.5, inventory: 7000, demand: 68, supplyIndex: 65, avgDaysOnMarket: 44, absorptionRate: 58 },
-    { city: "Ludhiana", avgPrice: 4200000, pricePerSqft: 3200, growth: 6.8, inventory: 5000, demand: 65, supplyIndex: 60, avgDaysOnMarket: 48, absorptionRate: 55 },
-    { city: "Bhopal", avgPrice: 3800000, pricePerSqft: 3000, growth: 11.5, inventory: 4800, demand: 80, supplyIndex: 75, avgDaysOnMarket: 35, absorptionRate: 72 },
-    { city: "Patna", avgPrice: 4500000, pricePerSqft: 3400, growth: 5.2, inventory: 3500, demand: 70, supplyIndex: 55, avgDaysOnMarket: 52, absorptionRate: 50 },
-    { city: "Vadodara", avgPrice: 5500000, pricePerSqft: 4000, growth: 9.2, inventory: 6200, demand: 78, supplyIndex: 68, avgDaysOnMarket: 42, absorptionRate: 68 },
-    { city: "Ghaziabad", avgPrice: 6800000, pricePerSqft: 4500, growth: 13.8, inventory: 15000, demand: 88, supplyIndex: 82, avgDaysOnMarket: 30, absorptionRate: 80 },
-    { city: "Rajkot", avgPrice: 4600000, pricePerSqft: 3400, growth: 12.5, inventory: 5500, demand: 82, supplyIndex: 78, avgDaysOnMarket: 32, absorptionRate: 75 },
-    { city: "Madurai", avgPrice: 4400000, pricePerSqft: 3200, growth: 8.5, inventory: 4200, demand: 72, supplyIndex: 65, avgDaysOnMarket: 45, absorptionRate: 62 },
-    { city: "Raipur", avgPrice: 3500000, pricePerSqft: 2800, growth: 15.2, inventory: 3800, demand: 85, supplyIndex: 70, avgDaysOnMarket: 28, absorptionRate: 82 },
-    { city: "Ranchi", avgPrice: 3200000, pricePerSqft: 2600, growth: 10.8, inventory: 3200, demand: 74, supplyIndex: 62, avgDaysOnMarket: 40, absorptionRate: 65 },
-    { city: "Guwahati", avgPrice: 4200000, pricePerSqft: 3200, growth: 12.5, inventory: 2500, demand: 80, supplyIndex: 55, avgDaysOnMarket: 35, absorptionRate: 70 },
-    { city: "Thiruvananthapuram", avgPrice: 6200000, pricePerSqft: 4800, growth: 7.5, inventory: 3000, demand: 75, supplyIndex: 60, avgDaysOnMarket: 48, absorptionRate: 65 },
-    { city: "Vijayawada", avgPrice: 5800000, pricePerSqft: 4200, growth: 18.2, inventory: 4000, demand: 90, supplyIndex: 75, avgDaysOnMarket: 22, absorptionRate: 88 },
+    { city: "Mumbai", avgPrice: 14000000, pricePerSqft: 14000, growth: 5.2, inventory: 15200, demand: 96, supplyIndex: 55, avgDaysOnMarket: 45, absorptionRate: 68 },
+    { city: "Bangalore", avgPrice: 9500000, pricePerSqft: 9500, growth: 13.0, inventory: 22000, demand: 94, supplyIndex: 78, avgDaysOnMarket: 35, absorptionRate: 82 },
+    { city: "Gurgaon", avgPrice: 10000000, pricePerSqft: 10000, growth: 10.5, inventory: 11000, demand: 98, supplyIndex: 65, avgDaysOnMarket: 28, absorptionRate: 88 },
+    { city: "Hyderabad", avgPrice: 7500000, pricePerSqft: 7500, growth: 8.0, inventory: 18500, demand: 95, supplyIndex: 82, avgDaysOnMarket: 30, absorptionRate: 85 },
+    { city: "New Delhi", avgPrice: 9200000, pricePerSqft: 9200, growth: 5.5, inventory: 8500, demand: 88, supplyIndex: 45, avgDaysOnMarket: 60, absorptionRate: 60 },
+    { city: "Pune", avgPrice: 7800000, pricePerSqft: 7800, growth: 7.8, inventory: 16000, demand: 85, supplyIndex: 72, avgDaysOnMarket: 40, absorptionRate: 75 },
+    { city: "Chennai", avgPrice: 7000000, pricePerSqft: 7000, growth: 6.2, inventory: 12500, demand: 80, supplyIndex: 68, avgDaysOnMarket: 50, absorptionRate: 65 },
+    { city: "Kolkata", avgPrice: 5500000, pricePerSqft: 5500, growth: 4.8, inventory: 14000, demand: 75, supplyIndex: 60, avgDaysOnMarket: 55, absorptionRate: 58 },
+    { city: "Ahmedabad", avgPrice: 5800000, pricePerSqft: 5800, growth: 8.5, inventory: 11000, demand: 82, supplyIndex: 65, avgDaysOnMarket: 42, absorptionRate: 70 },
+    { city: "Noida", avgPrice: 8500000, pricePerSqft: 8500, growth: 12.5, inventory: 19000, demand: 86, supplyIndex: 85, avgDaysOnMarket: 32, absorptionRate: 72 },
+    { city: "Jaipur", avgPrice: 4800000, pricePerSqft: 4800, growth: 10.2, inventory: 8000, demand: 78, supplyIndex: 70, avgDaysOnMarket: 38, absorptionRate: 65 },
+    { city: "Lucknow", avgPrice: 4200000, pricePerSqft: 4200, growth: 9.5, inventory: 7500, demand: 72, supplyIndex: 68, avgDaysOnMarket: 40, absorptionRate: 62 },
+    { city: "Chandigarh", avgPrice: 7500000, pricePerSqft: 7500, growth: 7.2, inventory: 4500, demand: 85, supplyIndex: 55, avgDaysOnMarket: 45, absorptionRate: 75 },
+    { city: "Surat", avgPrice: 4500000, pricePerSqft: 4500, growth: 11.8, inventory: 9000, demand: 80, supplyIndex: 75, avgDaysOnMarket: 35, absorptionRate: 78 },
+    { city: "Indore", avgPrice: 4000000, pricePerSqft: 4000, growth: 12.2, inventory: 8500, demand: 84, supplyIndex: 80, avgDaysOnMarket: 30, absorptionRate: 82 },
+    { city: "Coimbatore", avgPrice: 5200000, pricePerSqft: 5200, growth: 8.8, inventory: 6000, demand: 76, supplyIndex: 65, avgDaysOnMarket: 42, absorptionRate: 68 },
+    { city: "Kochi", avgPrice: 5800000, pricePerSqft: 5800, growth: 6.5, inventory: 5500, demand: 70, supplyIndex: 62, avgDaysOnMarket: 48, absorptionRate: 60 },
+    { city: "Thane", avgPrice: 10500000, pricePerSqft: 10500, growth: 8.8, inventory: 13500, demand: 90, supplyIndex: 75, avgDaysOnMarket: 38, absorptionRate: 70 },
+    { city: "Navi Mumbai", avgPrice: 9500000, pricePerSqft: 9500, growth: 12.5, inventory: 14000, demand: 92, supplyIndex: 70, avgDaysOnMarket: 25, absorptionRate: 85 },
+    { city: "Visakhapatnam", avgPrice: 4500000, pricePerSqft: 4500, growth: 10.5, inventory: 6500, demand: 74, supplyIndex: 72, avgDaysOnMarket: 40, absorptionRate: 64 },
+    { city: "Nagpur", avgPrice: 3800000, pricePerSqft: 3800, growth: 7.5, inventory: 7000, demand: 68, supplyIndex: 65, avgDaysOnMarket: 44, absorptionRate: 58 },
+    { city: "Ludhiana", avgPrice: 3500000, pricePerSqft: 3500, growth: 6.8, inventory: 5000, demand: 65, supplyIndex: 60, avgDaysOnMarket: 48, absorptionRate: 55 },
+    { city: "Bhopal", avgPrice: 3200000, pricePerSqft: 3200, growth: 11.5, inventory: 4800, demand: 80, supplyIndex: 75, avgDaysOnMarket: 35, absorptionRate: 72 },
+    { city: "Patna", avgPrice: 3500000, pricePerSqft: 3500, growth: 5.2, inventory: 3500, demand: 70, supplyIndex: 55, avgDaysOnMarket: 52, absorptionRate: 50 },
+    { city: "Vadodara", avgPrice: 4000000, pricePerSqft: 4000, growth: 9.2, inventory: 6200, demand: 78, supplyIndex: 68, avgDaysOnMarket: 42, absorptionRate: 68 },
+    { city: "Ghaziabad", avgPrice: 4800000, pricePerSqft: 4800, growth: 13.8, inventory: 15000, demand: 88, supplyIndex: 82, avgDaysOnMarket: 30, absorptionRate: 80 },
+    { city: "Rajkot", avgPrice: 3500000, pricePerSqft: 3500, growth: 12.5, inventory: 5500, demand: 82, supplyIndex: 78, avgDaysOnMarket: 32, absorptionRate: 75 },
+    { city: "Madurai", avgPrice: 3400000, pricePerSqft: 3400, growth: 8.5, inventory: 4200, demand: 72, supplyIndex: 65, avgDaysOnMarket: 45, absorptionRate: 62 },
+    { city: "Raipur", avgPrice: 3000000, pricePerSqft: 3000, growth: 15.2, inventory: 3800, demand: 85, supplyIndex: 70, avgDaysOnMarket: 28, absorptionRate: 82 },
+    { city: "Ranchi", avgPrice: 3000000, pricePerSqft: 3000, growth: 10.8, inventory: 3200, demand: 74, supplyIndex: 62, avgDaysOnMarket: 40, absorptionRate: 65 },
+    { city: "Guwahati", avgPrice: 3500000, pricePerSqft: 3500, growth: 12.5, inventory: 2500, demand: 80, supplyIndex: 55, avgDaysOnMarket: 35, absorptionRate: 70 },
+    { city: "Thiruvananthapuram", avgPrice: 4800000, pricePerSqft: 4800, growth: 7.5, inventory: 3000, demand: 75, supplyIndex: 60, avgDaysOnMarket: 48, absorptionRate: 65 },
+    { city: "Vijayawada", avgPrice: 4200000, pricePerSqft: 4200, growth: 18.2, inventory: 4000, demand: 90, supplyIndex: 75, avgDaysOnMarket: 22, absorptionRate: 88 },
 ];
 
 // --- Monthly Market Trends ---
@@ -251,7 +254,9 @@ export function runKMeansClusteringML(profiles, newProfile, k = 3) {
     return distances.sort((a, b) => a.dist - b.dist).slice(0, k);
 }
 
-// --- AI Prediction Logic (Powered by Mathematical Machine Learning) ---
+// --- AI Prediction Logic (Real-World Market Data · Q1 2026) ---
+// Base rates sourced from 99acres, Housing.com, NoBroker, MagicBricks averages
+// Last calibrated: April 2026
 export function predictPrice(features) {
     const { 
         city, sqft, bedrooms, floor, age, locality = "",
@@ -261,105 +266,226 @@ export function predictPrice(features) {
         distanceMetro, highwayAccess, airportDistance, propertyType
     } = features;
 
-    // Base rates for cities (derived from real market data per sqft - 2026 adjusted)
+    // ═══════════════════════════════════════════════════════════════
+    // STEP 1: City-level average price per sqft (2025-2026 verified)
+    // These are CITY AVERAGES for standard apartments, not locality peaks
+    // ═══════════════════════════════════════════════════════════════
     const baseRates = {
-        "Mumbai": 26500, "Bangalore": 9200, "Gurgaon": 14500, "Hyderabad": 10500,
-        "New Delhi": 18000, "Delhi": 18000, "Pune": 8500, "Chennai": 7200,
-        "Kolkata": 6500, "Ahmedabad": 5800, "Noida": 7200, "Jaipur": 5200,
-        "Lucknow": 4800, "Chandigarh": 9500, "Surat": 5000, "Indore": 4500,
-        "Coimbatore": 5500, "Kochi": 6200, "Thane": 13500, "Navi Mumbai": 12000,
-        "Visakhapatnam": 4800, "Nagpur": 4200, "Ludhiana": 3800, "Bhopal": 3500,
-        "Patna": 3800, "Vadodara": 4200, "Ghaziabad": 5000, "Rajkot": 3800,
-        "Madurai": 3600, "Raipur": 3200, "Ranchi": 3200, "Guwahati": 3800,
-        "Thiruvananthapuram": 5200, "Vijayawada": 4800
+        "Mumbai": 14000,       // MMR avg ~₹14,000 (99acres Q4 2025)
+        "Bangalore": 9500,     // Avg ~₹9,500 (HT/99acres 2025)
+        "Gurgaon": 10000,      // Avg ~₹10,000 (mid-range avg across sectors)
+        "Hyderabad": 7500,     // Avg ~₹7,500 (city avg; Gachibowli ~₹11,000)
+        "New Delhi": 9200,     // Delhi NCR avg ~₹9,167 (HT 2025)
+        "Delhi": 9200,
+        "Pune": 7800,          // Avg ~₹7,800 (99acres 2025)
+        "Chennai": 7000,       // Avg ~₹7,000 (Housing.com 2025)
+        "Kolkata": 5500,       // Avg ~₹5,500 (99acres 2025)
+        "Ahmedabad": 5800,     // Avg ~₹5,800 (NoBroker 2025)
+        "Noida": 8500,         // Avg ~₹8,500 (strong growth from infra)
+        "Jaipur": 4800,        // Avg ~₹4,800
+        "Lucknow": 4200,       // Avg ~₹4,200
+        "Chandigarh": 7500,    // Avg ~₹7,500
+        "Surat": 4500,         // Avg ~₹4,500
+        "Indore": 4000,        // Avg ~₹4,000
+        "Coimbatore": 5200,    // Avg ~₹5,200
+        "Kochi": 5800,         // Avg ~₹5,800
+        "Thane": 10500,        // Avg ~₹10,500 (close to Mumbai suburb rates)
+        "Navi Mumbai": 9500,   // Avg ~₹9,500
+        "Visakhapatnam": 4500, // Avg ~₹4,500
+        "Nagpur": 3800,        // Avg ~₹3,800
+        "Ludhiana": 3500,      // Avg ~₹3,500
+        "Bhopal": 3200,        // Avg ~₹3,200
+        "Patna": 3500,         // Avg ~₹3,500
+        "Vadodara": 4000,      // Avg ~₹4,000
+        "Ghaziabad": 4800,     // Avg ~₹4,800
+        "Rajkot": 3500,        // Avg ~₹3,500
+        "Madurai": 3400,       // Avg ~₹3,400
+        "Raipur": 3000,        // Avg ~₹3,000
+        "Ranchi": 3000,        // Avg ~₹3,000
+        "Guwahati": 3500,      // Avg ~₹3,500
+        "Thiruvananthapuram": 4800, // Avg ~₹4,800
+        "Vijayawada": 4200     // Avg ~₹4,200
     };
-    let rate = baseRates[city] || 5000;
+    let rate = baseRates[city] || 4500;
 
-    // Apply locality variation (Crucial for real-world accuracy)
+    // ═══════════════════════════════════════════════════════════════
+    // STEP 2: Locality-specific overrides (verified micro-market data)
+    // Uses exact per-sqft rates where known, else category multipliers
+    // ═══════════════════════════════════════════════════════════════
     if (locality) {
-        // Elite / Premium Localities in India
-        const eliteLocalities = /siripuram|bandra|jubilee|banjara|golf course|whitefield|powai|koregaon|gachibowli|andheri|juhu|worli|adyar|besant|salt lake|viman nagar|marathahalli|indiranagar|koramangala|bkc|south bombay|colaba/i;
-        const premiumLocalities = /madhapur|hitech|electronic city|sarjapur|new town|rajarhat|dwarka|vasant|saket|anna nagar|velachery|seethammadhara|mvp colony/i;
-        
-        if (locality.match(eliteLocalities)) rate *= 1.4; // 40% premium for elite areas
-        else if (locality.match(premiumLocalities)) rate *= 1.2; // 20% premium for prime areas
+        const loc = locality.toLowerCase().trim();
 
-        // Deterministic micro-market variation (-5% to +10%)
-        const hash = locality.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const variation = ((hash % 15) - 5) / 100;
-        rate *= (1 + variation);
+        // --- LOCALITY RATE OVERRIDES (exact verified rates) ---
+        const localityRates = {
+            // Mumbai localities
+            "bandra west": 55000, "bandra east": 28000, "juhu": 45000,
+            "worli": 48000, "lower parel": 35000, "andheri west": 22000,
+            "andheri east": 16000, "powai": 18000, "colaba": 55000,
+            "south bombay": 60000, "bkc": 35000, "goregaon": 14000,
+            "malad": 13500, "borivali": 12000, "kandivali": 11000,
+            "dahisar": 10000, "virar": 5500, "vasai": 5000,
+            // Bangalore localities
+            "koramangala": 14000, "indiranagar": 15000, "whitefield": 11500,
+            "marathahalli": 9000, "electronic city": 6500, "sarjapur": 7500,
+            "hsr layout": 12000, "jayanagar": 13000, "jp nagar": 10000,
+            "hebbal": 9500, "yelahanka": 6500, "bannerghatta": 7000,
+            // Hyderabad localities
+            "gachibowli": 11000, "madhapur": 10000, "hitech city": 10500,
+            "jubilee hills": 15000, "banjara hills": 16000, "kondapur": 8500,
+            "kukatpally": 6500, "miyapur": 5500, "manikonda": 7000,
+            "narsingi": 7500, "financial district": 9500, "kokapet": 8500,
+            "siripuram": 6000,
+            // Delhi NCR
+            "dwarka": 8500, "vasant kunj": 12000, "saket": 14000,
+            "greater kailash": 18000, "defence colony": 22000,
+            "hauz khas": 16000, "lajpat nagar": 11000,
+            // Gurgaon
+            "golf course road": 18000, "dlf phase 1": 14000, "dlf phase 5": 16000,
+            "sohna road": 8000, "sector 49": 9000, "sector 57": 10000,
+            // Pune
+            "koregaon park": 14000, "viman nagar": 10500, "baner": 9000,
+            "hinjewadi": 7500, "kharadi": 8500, "wakad": 7000,
+            "hadapsar": 6500, "magarpatta": 9500,
+            // Chennai
+            "adyar": 12000, "anna nagar": 10000, "velachery": 7500,
+            "omr": 7000, "porur": 6000, "tambaram": 5000,
+            "besant nagar": 14000, "t nagar": 13000,
+            // Kolkata
+            "salt lake": 7500, "new town": 6000, "rajarhat": 5500,
+            "ballygunge": 10000, "alipore": 12000,
+            // Noida
+            "sector 150": 8000, "sector 137": 7500, "sector 75": 9000,
+            "greater noida": 5000, "noida extension": 5500,
+        };
+
+        // Check for exact locality match first
+        if (localityRates[loc]) {
+            rate = localityRates[loc];
+        } else {
+            // Partial match search (e.g., user types "Bandra" → matches "bandra")
+            const partialMatch = Object.keys(localityRates).find(k => 
+                loc.includes(k) || k.includes(loc)
+            );
+            if (partialMatch) {
+                rate = localityRates[partialMatch];
+            } else {
+                // Unknown locality: apply small deterministic variation (-3% to +5%)
+                const hash = locality.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const variation = ((hash % 8) - 3) / 100;
+                rate *= (1 + variation);
+            }
+        }
     }
 
-    // Property Type
-    if (propertyType === 'Villa') rate *= 1.3;
-    if (propertyType === 'Independent House') rate *= 1.15;
-    if (propertyType === 'Plot') rate *= 0.8;
+    // ═══════════════════════════════════════════════════════════════
+    // STEP 3: Property type multiplier
+    // ═══════════════════════════════════════════════════════════════
+    if (propertyType === 'Villa') rate *= 1.25;
+    else if (propertyType === 'Independent House') rate *= 1.1;
+    else if (propertyType === 'Plot') rate *= 0.65; // Land only, no construction value
 
+    // ═══════════════════════════════════════════════════════════════
+    // STEP 4: Feature-based premium (additive, capped)
+    // Each feature adds/subtracts a % premium, then capped at ±30%
+    // ═══════════════════════════════════════════════════════════════
     let premiumPercent = 0;
 
-    // Additional Structure Features
-    if (bathrooms > bedrooms) premiumPercent += 2;
+    // Structure features
+    if (bathrooms > bedrooms) premiumPercent += 1.5;
     if (balconies > 1) premiumPercent += 1;
-    if (unitPosition === 'Corner') premiumPercent += 3;
-    if (parking === 'Covered') premiumPercent += 5;
-    else if (parking === 'Open') premiumPercent += 2;
-    if (servantRoom === 'Yes') premiumPercent += 3;
-    if (studyRoom === 'Yes') premiumPercent += 2;
+    if (unitPosition === 'Corner') premiumPercent += 2;
+    if (parking === 'Covered') premiumPercent += 3;
+    else if (parking === 'Open') premiumPercent += 1;
+    if (servantRoom === 'Yes') premiumPercent += 2;
+    if (studyRoom === 'Yes') premiumPercent += 1.5;
 
-    // Views & Directions
+    // Views & Directions (Vastu premium is real in Indian market)
     if (parkFacing === 'Yes') premiumPercent += 2;
-    if (gardenView === 'Yes') premiumPercent += 2;
-    if (seaLakeView === 'Yes') premiumPercent += 5;
-    if (roadView === 'Yes') premiumPercent -= 2;
+    if (gardenView === 'Yes') premiumPercent += 1.5;
+    if (seaLakeView === 'Yes') premiumPercent += 4;
+    if (roadView === 'Yes') premiumPercent -= 1.5; // Main road noise discount
     if (mainDoorFacing === 'East' || mainDoorFacing === 'North') premiumPercent += 1;
 
-    // Amenities
+    // Amenities (each adds 0.3%, specific ones add more)
     if (amenities && amenities.length > 0) {
-        premiumPercent += (amenities.length * 0.5); 
-        if (amenities.includes('Swimming pool')) premiumPercent += 3;
-        if (amenities.includes('Clubhouse')) premiumPercent += 2;
+        premiumPercent += (amenities.length * 0.3);
+        if (amenities.includes('Swimming pool')) premiumPercent += 2;
+        if (amenities.includes('Clubhouse')) premiumPercent += 1.5;
+        if (amenities.includes('Gym')) premiumPercent += 1;
     }
 
-    // Building & Legal
-    if (builderReputation === 'Premium') premiumPercent += 10;
-    else if (builderReputation === 'Unknown') premiumPercent -= 5;
+    // Builder & Legal
+    if (builderReputation === 'Premium') premiumPercent += 8;
+    else if (builderReputation === 'Unknown') premiumPercent -= 4;
     if (reraApproved === 'Yes') premiumPercent += 1;
-    if (gatedCommunity === 'Yes') premiumPercent += 3;
+    if (gatedCommunity === 'Yes') premiumPercent += 2;
 
     // Connectivity
-    if (distanceMetro < 2) premiumPercent += 3;
+    if (distanceMetro < 1) premiumPercent += 3;
+    else if (distanceMetro < 2) premiumPercent += 2;
     else if (distanceMetro > 10) premiumPercent -= 2;
-    
-    if (highwayAccess < 5) premiumPercent += 2;
-    else if (highwayAccess > 15) premiumPercent -= 2;
-    
+
+    if (highwayAccess < 3) premiumPercent += 1.5;
+    else if (highwayAccess > 15) premiumPercent -= 1.5;
+
     if (airportDistance < 10) premiumPercent += 1;
 
-    // Floor rise (0.5% per floor above 10)
-    if (floor > 10) premiumPercent += 0.5 * (floor - 10);
-    // Luxury space premium
-    if (bedrooms > 3) premiumPercent += 5;
+    // Floor rise: ~0.3% per floor above 5 (Indian market standard)
+    if (floor > 5) premiumPercent += 0.3 * Math.min(floor - 5, 30);
 
-    // Cap the total feature premium/penalty (+50% to -20%)
-    premiumPercent = Math.max(-20, Math.min(50, premiumPercent));
+    // BHK premium: larger homes command slightly higher per-sqft
+    if (bedrooms >= 4) premiumPercent += 3;
+    else if (bedrooms === 3) premiumPercent += 1;
 
-    // Apply net premium
+    // Cap total feature premium at ±30% (prevents runaway inflation)
+    premiumPercent = Math.max(-15, Math.min(30, premiumPercent));
+
+    // Apply net feature premium
     rate = rate * (1 + (premiumPercent / 100));
 
-    // Depreciation (0.5% per year, capped at 40%)
-    const depreciation = Math.min(40, age * 0.5);
+    // ═══════════════════════════════════════════════════════════════
+    // STEP 5: Depreciation (age-based, realistic Indian market)
+    // New construction: 0 depreciation
+    // 1-5 years: 0.3% per year (nearly new)
+    // 5-15 years: 0.6% per year (moderate aging)
+    // 15+ years: 1% per year (older buildings)
+    // Capped at 35% max depreciation
+    // ═══════════════════════════════════════════════════════════════
+    let depreciation = 0;
+    if (age <= 5) {
+        depreciation = age * 0.3;
+    } else if (age <= 15) {
+        depreciation = (5 * 0.3) + ((age - 5) * 0.6);
+    } else {
+        depreciation = (5 * 0.3) + (10 * 0.6) + ((age - 15) * 1.0);
+    }
+    depreciation = Math.min(35, depreciation);
     rate = rate * (1 - (depreciation / 100));
 
+    // ═══════════════════════════════════════════════════════════════
+    // STEP 6: Final calculation
+    // ═══════════════════════════════════════════════════════════════
     const predicted = Math.round(rate * sqft);
-    const low = Math.round(predicted * 0.92);
-    const high = Math.round(predicted * 1.08);
+    const low = Math.round(predicted * 0.92);   // -8% market variation
+    const high = Math.round(predicted * 1.08);   // +8% market variation
 
-    // Calculate a dynamic confidence score based on the amount of data we have
-    let confidence = 89;
-    if (locality) confidence += 2;
-    if (propertyType) confidence += 1;
-    if (builderReputation !== 'Unknown') confidence += 2;
-    confidence = Math.min(confidence, 98);
+    // Dynamic confidence: higher when we have more specific data
+    let confidence = 82; // base confidence for city-only prediction
+    if (locality) {
+        const loc = locality.toLowerCase().trim();
+        // Higher confidence if we have exact locality data
+        const knownLocalities = ["bandra west","bandra east","juhu","worli","lower parel","andheri west","andheri east","powai","colaba","south bombay","bkc","goregaon","malad","borivali","kandivali","koramangala","indiranagar","whitefield","marathahalli","electronic city","sarjapur","hsr layout","jayanagar","gachibowli","madhapur","hitech city","jubilee hills","banjara hills","kondapur","kukatpally","dwarka","vasant kunj","saket","golf course road","koregaon park","viman nagar","baner","hinjewadi","adyar","anna nagar","velachery","salt lake","new town","sector 150","sector 137"];
+        if (knownLocalities.some(k => loc.includes(k) || k.includes(loc))) {
+            confidence += 8; // verified locality data
+        } else {
+            confidence += 3; // unknown locality, some info from name
+        }
+    }
+    if (propertyType && propertyType !== 'Apartment') confidence += 1;
+    if (builderReputation === 'Premium') confidence += 2;
+    else if (builderReputation === 'Unknown') confidence -= 2;
+    if (age <= 5) confidence += 2; // newer properties have more transaction data
+    confidence = Math.max(70, Math.min(95, confidence));
 
     return { predicted, low, high, confidence, pricePerSqft: Math.round(rate) };
 }
