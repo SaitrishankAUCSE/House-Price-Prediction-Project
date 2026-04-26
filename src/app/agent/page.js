@@ -13,8 +13,6 @@ const deals = [
     { id: 3, client: "Karan Mehta", property: "Palm Grove Estate", value: 22000000, stage: "qualified", probability: 30, closeDate: "2026-05-01" },
     { id: 4, client: "Ananya Iyer", property: "Tech Park Residences", value: 7800000, stage: "showing", probability: 50, closeDate: "2026-04-01" },
     { id: 5, client: "Vikram Singh", property: "Royal Heights", value: 9800000, stage: "closed", probability: 100, closeDate: "2026-01-28" },
-    { id: 6, client: "Priya Patel", property: "Skyline Residency", value: 18500000, stage: "qualified", probability: 25, closeDate: "2026-05-20" },
-    { id: 7, client: "Suresh Kapoor", property: "Skyline Residency (Sell)", value: 18500000, stage: "showing", probability: 60, closeDate: "2026-03-15" },
 ];
 const commissionRate = 0.02;
 const monthlyClosings = [
@@ -24,10 +22,11 @@ const monthlyClosings = [
 ];
 
 // ==================== 1. DASHBOARD TAB ====================
-function DashboardTab() {
+function DashboardTab({ deals: propDeals }) {
+    const currentDeals = propDeals || deals;
     const totalCommission = commissionHistory.filter(c => c.status === 'paid').reduce((s, c) => s + c.commission, 0);
     const expectedCommission = commissionHistory.filter(c => c.status === 'expected').reduce((s, c) => s + c.commission, 0);
-    const activeDeals = deals.filter(d => d.stage !== 'closed').length;
+    const activeDeals = currentDeals.filter(d => d.stage !== 'closed').length;
     const pendingTasks = agentTasks.filter(t => t.status === 'pending').length;
     const todayEvents = agentCalendar.filter(e => e.date === '2026-02-12');
     return (
@@ -147,7 +146,7 @@ function LeadsTab() {
 }
 
 // ==================== 3. CRM TAB ====================
-function CRMTab() {
+function CRMTab({ localProps = [] }) {
     const [selected, setSelected] = useState(null);
     const [search, setSearch] = useState('');
     const filtered = clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase()) || c.city.toLowerCase().includes(search.toLowerCase()));
@@ -205,6 +204,34 @@ function CRMTab() {
                             <button onClick={() => alert(`AI Automation: Generating predictive workflow for ${l}...`)} key={l} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:-translate-y-0.5" style={{ background: c }}><span className="material-symbols-outlined text-sm">{ic}</span>{l}</button>
                         ))}</div>
                     </div>
+
+                    {sel.type === 'buyer' && (
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                            <h4 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-red-500">hub</span> Recommended Properties (AI Match)
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {[...localProps, ...properties]
+                                    .filter(p => p.city === sel.city && p.price <= sel.budget * 1.2 && p.status === 'active')
+                                    .slice(0, 2)
+                                    .map(p => (
+                                        <div key={p.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden flex flex-col group cursor-pointer hover:border-red-500/30 transition-all">
+                                            <div className="h-24 bg-slate-800 relative">
+                                                <img src={p.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=400"} className="w-full h-full object-cover group-hover:scale-110 transition-all" alt="" />
+                                                <div className="absolute inset-0 bg-black/40" />
+                                                <div className="absolute bottom-2 left-2 text-[10px] font-bold text-white">{formatPrice(p.price)}</div>
+                                            </div>
+                                            <div className="p-3">
+                                                <div className="text-[11px] font-bold text-white truncate">{p.name}</div>
+                                                <div className="text-[9px] text-white/40 mb-2">{p.locality}</div>
+                                                <button onClick={() => alert(`Action: Property proposal sent to ${sel.name}!`)} className="w-full py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white text-[9px] font-bold uppercase rounded-lg transition-all border border-red-500/20">Send Proposal</button>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    )}
                 </> : <EmptyState icon="person_search" title="Select a client" subtitle="Choose from the list to view their profile" />}
             </div>
         </div>
@@ -212,14 +239,15 @@ function CRMTab() {
 }
 
 // ==================== 4. PIPELINE TAB ====================
-function PipelineTab() {
+function PipelineTab({ deals: propDeals }) {
+    const currentDeals = propDeals || deals;
     return (
         <div className="space-y-6">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
                 <h3 className="font-bold text-navy text-sm mb-4 flex items-center gap-2"><span className="material-symbols-outlined text-amber-600">view_kanban</span>Deal Pipeline</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {pipelineStages.map(stage => {
-                        const stageDeals = deals.filter(d => d.stage === stage); return (
+                        const stageDeals = currentDeals.filter(d => d.stage === stage); return (
                             <div key={stage} className="space-y-3">
                                 <div className="flex items-center justify-between">
                                     <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: pipelineColors[stage] }}>{pipelineLabels[stage]}</span>
@@ -244,7 +272,7 @@ function PipelineTab() {
             </div>
             {/* Weighted Pipeline */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {[['Total Pipeline', deals.reduce((s, d) => s + d.value, 0), '#f8fafc'], ['Weighted Value', deals.reduce((s, d) => s + d.value * d.probability / 100, 0), ACCENT], ['Expected Commission', deals.reduce((s, d) => s + d.value * d.probability / 100 * commissionRate, 0), '#22c55e']].map(([l, v, c]) => (
+                {[['Total Pipeline', currentDeals.reduce((s, d) => s + d.value, 0), '#f8fafc'], ['Weighted Value', currentDeals.reduce((s, d) => s + d.value * d.probability / 100, 0), ACCENT], ['Expected Commission', currentDeals.reduce((s, d) => s + d.value * d.probability / 100 * commissionRate, 0), '#22c55e']].map(([l, v, c]) => (
                     <div key={l} className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
                         <div className="text-2xl font-['Anton'] text-navy tracking-wide">{formatPrice(v)}</div>
                         <div className="text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: c }}>{l}</div>
@@ -411,15 +439,53 @@ const tabs = [
 
 export default function AgentPage() {
     const [activeTab, setActiveTab] = useState('dashboard');
-    const [mlProcessing, setMlProcessing] = useState(false);
-    
-    const executeMLTask = (taskName) => {
-        setMlProcessing(true);
-        setTimeout(() => {
-            alert(`Machine Learning Engine: ${taskName} executed completely.`);
-            setMlProcessing(false);
-        }, 1500);
+    const [notification, setNotification] = useState(null);
+    const [localTours, setLocalTours] = useState([]);
+    const [localOffers, setLocalOffers] = useState([]);
+    const [localProps, setLocalProps] = useState([]);
+
+    const showNotification = (message, type = 'success') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 4000);
     };
+
+    useEffect(() => {
+        const tours = localStorage.getItem('buyerTourRequests');
+        if (tours) setLocalTours(JSON.parse(tours));
+
+        const offers = localStorage.getItem('buyerOffers');
+        if (offers) setLocalOffers(JSON.parse(offers));
+
+        const props = localStorage.getItem('userProperties');
+        if (props) setLocalProps(JSON.parse(props));
+    }, []);
+
+    const updateTourStatus = (id, status) => {
+        const updated = localTours.map(t => t.id === id ? { ...t, status } : t);
+        setLocalTours(updated);
+        localStorage.setItem('buyerTourRequests', JSON.stringify(updated));
+        showNotification(`Tour ${status} successfully!`);
+    };
+
+    const updateOfferStatus = (id, status) => {
+        const updated = localOffers.map(o => o.id === id ? { ...o, status } : o);
+        setLocalOffers(updated);
+        localStorage.setItem('buyerOffers', JSON.stringify(updated));
+        showNotification(`Offer ${status}! Notification sent to buyer.`);
+    };
+
+    const combinedDeals = useMemo(() => {
+        const realDeals = localOffers.map(o => ({
+            id: o.id,
+            client: "Real Buyer",
+            property: o.propertyName,
+            value: o.offerPrice,
+            stage: o.status === 'pending' ? 'offer' : o.status === 'accepted' ? 'closed' : 'negotiation',
+            probability: o.status === 'pending' ? 60 : o.status === 'accepted' ? 100 : 30,
+            isReal: true
+        }));
+        return [...realDeals, ...deals];
+    }, [localOffers]);
 
     return (
         <AuthGuard>
@@ -430,17 +496,116 @@ export default function AgentPage() {
                 <div className="relative z-10 max-w-[1400px] mx-auto px-6 md:px-12 pt-32 pb-20">
 
                     <SectionHeader icon="handshake" title="Agent Portal" subtitle="Market Intelligence • Client Relationship • Deals Management" accent={ACCENT} />
-                    <TabBar tabs={tabs.map(t => ({ ...t, badge: t.id === 'leads' ? clients.filter(c => c.status === 'lead').length : t.id === 'productivity' ? agentTasks.filter(t => t.status === 'pending' && t.priority === 'high').length : 0 }))} active={activeTab} onChange={setActiveTab} accent={ACCENT} />
+                    <TabBar 
+                        tabs={tabs.map(t => ({ 
+                            ...t, 
+                            badge: t.id === 'crm' ? localTours.filter(t => t.status === 'pending').length : 
+                                   t.id === 'pipeline' ? localOffers.filter(o => o.status === 'pending').length : 0 
+                        }))} 
+                        active={activeTab} 
+                        onChange={setActiveTab} 
+                        accent={ACCENT} 
+                    />
+                    
                     <div className="mt-8">
-                        {activeTab === 'dashboard' && <DashboardTab />}
-                        {activeTab === 'leads' && <LeadsTab />}
-                        {activeTab === 'crm' && <CRMTab />}
-                        {activeTab === 'pipeline' && <PipelineTab />}
-                        {activeTab === 'productivity' && <ProductivityTab />}
-                        {activeTab === 'listings' && <ListingsIntelTab />}
-                        {activeTab === 'financials' && <FinancialsTab />}
+                        {activeTab === 'dashboard' && (
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <StatCard icon="explore" label="Managed Properties" value={localProps.length + properties.length} color="#ef4444" />
+                                    <StatCard icon="event" label="Pending Site Visits" value={localTours.filter(t => t.status === 'pending').length} trend={localTours.length > 0 ? "New" : ""} color={ACCENT} />
+                                    <StatCard icon="gavel" label="Active Offers" value={localOffers.filter(o => o.status === 'pending').length} color="#22c55e" />
+                                    <StatCard icon="payments" label="Total Pipeline" value={formatPrice(combinedDeals.reduce((a, b) => a + b.value, 0))} color="#3b82f6" />
+                                </div>
+                                <DashboardTab deals={combinedDeals} />
+                            </div>
+                        )}
+                        
+                        {activeTab === 'crm' && (
+                            <div className="space-y-6">
+                                {localTours.length > 0 && (
+                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+                                        <h3 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-amber-500">pending_actions</span> Incoming Site Visit Requests
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {localTours.map(tour => (
+                                                <div key={tour.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between">
+                                                    <div>
+                                                        <div className="text-xs font-bold text-white">{tour.propertyName}</div>
+                                                        <div className="text-[10px] text-white/40 uppercase tracking-widest">{tour.date} @ {tour.time}</div>
+                                                        <div className="mt-2 text-[9px] font-bold px-2 py-0.5 rounded-full inline-block" style={{ background: tour.status === 'pending' ? '#f59e0b20' : '#22c55e20', color: tour.status === 'pending' ? '#f59e0b' : '#22c55e' }}>
+                                                            {tour.status.toUpperCase()}
+                                                        </div>
+                                                    </div>
+                                                    {tour.status === 'pending' && (
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => updateTourStatus(tour.id, 'confirmed')} className="p-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-all"><span className="material-symbols-outlined text-sm">check</span></button>
+                                                            <button onClick={() => updateTourStatus(tour.id, 'rejected')} className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/40 text-red-400 transition-all"><span className="material-symbols-outlined text-sm">close</span></button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <CRMTab localProps={localProps} />
+                            </div>
+                        )}
+                        
+                        {activeTab === 'pipeline' && (
+                            <div className="space-y-6">
+                                {localOffers.length > 0 && (
+                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+                                        <h3 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-red-500">gavel</span> Active Property Offers
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {localOffers.map(offer => (
+                                                <div key={offer.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between flex-wrap gap-4">
+                                                    <div className="flex gap-4 items-center">
+                                                        <div className="w-10 h-10 rounded-full bg-red-600/20 flex items-center justify-center text-red-500 font-bold text-xs">OFFER</div>
+                                                        <div>
+                                                            <div className="text-sm font-bold text-white">{offer.propertyName}</div>
+                                                            <div className="text-[10px] text-white/40">Buyer offered {formatPrice(offer.offerPrice)} (List: {formatPrice(offer.listPrice)})</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={`text-[10px] font-bold px-3 py-1 rounded-full ${offer.status === 'pending' ? 'bg-amber-500/10 text-amber-400' : offer.status === 'accepted' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                                                            {offer.status.toUpperCase()}
+                                                        </div>
+                                                        {offer.status === 'pending' && (
+                                                            <div className="flex gap-2">
+                                                                <button onClick={() => updateOfferStatus(offer.id, 'accepted')} className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold uppercase transition-all">Accept</button>
+                                                                <button onClick={() => updateOfferStatus(offer.id, 'rejected')} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold uppercase transition-all">Reject</button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <PipelineTab deals={combinedDeals} />
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                <AnimatePresence>
+                    {notification && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="fixed bottom-8 right-8 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl bg-[#111] border border-white/10 shadow-2xl shadow-amber-600/20"
+                        >
+                            <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-sm">notifications</span>
+                            </div>
+                            <p className="text-sm font-bold text-white tracking-wide">{notification.message}</p>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </AuthGuard>
     );

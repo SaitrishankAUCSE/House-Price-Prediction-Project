@@ -191,7 +191,7 @@ function DiscoveryTab({ savedIds, onSave, onSelect }) {
 }
 
 // ==================== 2. PROPERTY DETAIL TAB ====================
-function PropertyDetailTab({ selectedProperty, savedIds, onSave }) {
+function PropertyDetailTab({ selectedProperty, savedIds, onSave, handleTourRequest, handleMakeOffer }) {
     if (!selectedProperty) return <EmptyState icon="home" title="Select a property to view details" subtitle="Click any property card from Discovery tab" />;
     const p = selectedProperty;
     const priceHist = getPriceHistory(p.id);
@@ -280,6 +280,28 @@ function PropertyDetailTab({ selectedProperty, savedIds, onSave }) {
                     ))}</div>
                 </div>
             </div>
+            {/* Actions */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-wrap gap-4 items-center justify-between">
+                <div>
+                    <h3 className="font-bold text-white text-sm mb-1">Interested in this property?</h3>
+                    <p className="text-xs text-white/40 font-medium">Connect with an agent to proceed with viewing or purchase.</p>
+                </div>
+                <div className="flex gap-3">
+                    <button 
+                        onClick={() => handleTourRequest(p)}
+                        className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
+                    >
+                        <span className="material-symbols-outlined text-sm text-amber-500">event</span> Schedule Tour
+                    </button>
+                    <button 
+                        onClick={() => handleMakeOffer(p)}
+                        className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center gap-2"
+                    >
+                        <span className="material-symbols-outlined text-sm">gavel</span> Make Official Offer
+                    </button>
+                </div>
+            </div>
+
             {/* Similar Properties */}
             {similar.length > 0 && <div>
                 <h3 className="font-bold text-white text-sm mb-4 flex items-center gap-2"><span className="material-symbols-outlined text-purple-500">compare_arrows</span>Similar Properties</h3>
@@ -1172,8 +1194,10 @@ function SavedTab({ savedIds, onSave, onSelect }) {
 }
 
 // ==================== 6. ACTIONS TAB ====================
-function ActionsTab() {
+function ActionsTab({ tourRequests: localTours, buyerOffers: localOffers }) {
     const [activePanel, setActivePanel] = useState('tours');
+    const toursToDisplay = [...(localTours || []), ...tourRequests];
+    const offersToDisplay = [...(localOffers || []), ...buyerOffers];
     const panels = [['tours', 'Tours', 'event'], ['offers', 'Offers', 'gavel'], ['share', 'Share', 'share'], ['contact', 'Contact', 'chat']];
     return (
         <div>
@@ -1183,8 +1207,8 @@ function ActionsTab() {
                 </button>
             ))}</div>
             {activePanel === 'tours' && <div className="space-y-4">
-                <div className="flex items-center justify-between mb-2"><h3 className="font-bold text-white text-sm">Scheduled Tours</h3><button className="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-red-700 transition-all shadow-lg shadow-red-500/20">+ Schedule Tour</button></div>
-                {tourRequests.map(t => (
+                <div className="flex items-center justify-between mb-2"><h3 className="font-bold text-white text-sm">Scheduled Tours</h3></div>
+                {toursToDisplay.length === 0 ? <EmptyState icon="event" title="No tours scheduled" subtitle="Request a tour from the property details page" /> : toursToDisplay.map(t => (
                     <div key={t.id} className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${t.status === 'confirmed' ? 'bg-green-500/10 text-green-400' : t.status === 'pending' ? 'bg-amber-500/10 text-amber-400' : 'bg-white/10 text-white/40'}`}><span className="material-symbols-outlined text-xl">event</span></div>
@@ -1198,10 +1222,10 @@ function ActionsTab() {
                 ))}
             </div>}
             {activePanel === 'offers' && <div className="space-y-4">
-                <div className="flex items-center justify-between mb-2"><h3 className="font-bold text-white text-sm">My Offers</h3><button className="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-red-700 transition-all shadow-lg shadow-red-500/20">+ New Offer</button></div>
-                {buyerOffers.map(o => (
+                <div className="flex items-center justify-between mb-2"><h3 className="font-bold text-white text-sm">My Offers</h3></div>
+                {offersToDisplay.length === 0 ? <EmptyState icon="gavel" title="No offers made" subtitle="Make an offer on properties you love" /> : offersToDisplay.map(o => (
                     <div key={o.id} className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                        <div className="flex items-center justify-between mb-3"><div className="text-sm font-bold text-white">{o.propertyName}</div><span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${o.status === 'submitted' ? 'bg-blue-500/10 text-blue-400' : 'bg-purple-500/10 text-purple-400'}`}>{o.status}</span></div>
+                        <div className="flex items-center justify-between mb-3"><div className="text-sm font-bold text-white">{o.propertyName}</div><span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${o.status === 'pending' ? 'bg-amber-500/10 text-amber-400' : o.status === 'accepted' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>{o.status}</span></div>
                         <div className="grid grid-cols-3 gap-4 text-xs">
                             <div><span className="text-white/40 uppercase text-[9px] font-bold tracking-wider">Your Offer</span><div className="font-bold text-white">{formatPrice(o.offerPrice)}</div></div>
                             <div><span className="text-white/40 uppercase text-[9px] font-bold tracking-wider">List Price</span><div className="font-bold text-white">{formatPrice(o.listPrice)}</div></div>
@@ -1305,12 +1329,74 @@ const tabs = [
 ];
 
 export default function BuyerPage() {
-    const [activeTab, setActiveTab] = useState('predictor');
-
-
-    const [savedIds, setSavedIds] = useState(new Set([1, 4, 9]));
+    const [notification, setNotification] = useState(null);
+    const [savedIds, setSavedIds] = useState(new Set());
+    const [localTourRequests, setLocalTourRequests] = useState([]);
+    const [localOffers, setLocalOffers] = useState([]);
     const [selectedProperty, setSelectedProperty] = useState(null);
-    const toggleSave = id => setSavedIds(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+
+    const showNotification = (message, type = 'success') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 4000);
+    };
+
+    useEffect(() => {
+        const saved = localStorage.getItem('buyerSavedIds');
+        if (saved) setSavedIds(new Set(JSON.parse(saved)));
+        
+        const tours = localStorage.getItem('buyerTourRequests');
+        if (tours) setLocalTourRequests(JSON.parse(tours));
+
+        const offers = localStorage.getItem('buyerOffers');
+        if (offers) setLocalOffers(JSON.parse(offers));
+    }, []);
+
+    const toggleSave = id => {
+        setSavedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            localStorage.setItem('buyerSavedIds', JSON.stringify(Array.from(next)));
+            showNotification(next.has(id) ? 'Property saved to your favorites!' : 'Removed from favorites');
+            return next;
+        });
+    };
+
+    const handleTourRequest = (property) => {
+        const newRequest = {
+            id: Date.now(),
+            propertyId: property.id,
+            propertyName: property.name,
+            date: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], // 2 days later
+            time: "11:00 AM",
+            status: "pending",
+            agentName: "Arjun Reddy",
+            type: 'tour'
+        };
+        const updated = [newRequest, ...localTourRequests];
+        setLocalTourRequests(updated);
+        localStorage.setItem('buyerTourRequests', JSON.stringify(updated));
+        showNotification('Tour request sent to agent!', 'success');
+    };
+
+    const handleMakeOffer = (property) => {
+        const offerPrice = Math.round(property.price * 0.95); // 5% below list
+        const newOffer = {
+            id: Date.now(),
+            propertyId: property.id,
+            propertyName: property.name,
+            offerPrice,
+            listPrice: property.price,
+            status: "pending",
+            submittedDate: new Date().toISOString().split('T')[0],
+            type: 'offer'
+        };
+        const updated = [newOffer, ...localOffers];
+        setLocalOffers(updated);
+        localStorage.setItem('buyerOffers', JSON.stringify(updated));
+        showNotification('Offer submitted to seller via agent!', 'success');
+    };
+
     const selectProp = p => { setSelectedProperty(p); setActiveTab('detail'); };
 
     return (
@@ -1333,15 +1419,31 @@ export default function BuyerPage() {
                         </div>
                         <TabBar tabs={tabs.map(t => ({ ...t, badge: t.id === 'saved' ? savedIds.size : t.id === 'actions' ? notifications.filter(n => !n.read).length : 0 }))} active={activeTab} onChange={setActiveTab} accent={ACCENT} />
                         {activeTab === 'discovery' && <DiscoveryTab savedIds={savedIds} onSave={toggleSave} onSelect={selectProp} />}
-                        {activeTab === 'detail' && <PropertyDetailTab selectedProperty={selectedProperty} savedIds={savedIds} onSave={toggleSave} />}
+                        {activeTab === 'detail' && <PropertyDetailTab selectedProperty={selectedProperty} savedIds={savedIds} onSave={toggleSave} handleTourRequest={handleTourRequest} handleMakeOffer={handleMakeOffer} />}
                         {activeTab === 'predictor' && <PredictorTab />}
                         {activeTab === 'financial' && <FinancialTab />}
                         {activeTab === 'saved' && <SavedTab savedIds={savedIds} onSave={toggleSave} onSelect={selectProp} />}
-                        {activeTab === 'actions' && <ActionsTab />}
+                        {activeTab === 'actions' && <ActionsTab tourRequests={localTourRequests} buyerOffers={localOffers} />}
                         {activeTab === 'journey' && <JourneyTab />}
                         {activeTab === 'smart' && <SmartPicksTab savedIds={savedIds} onSave={toggleSave} onSelect={selectProp} />}
                     </div>
                 </div>
+
+                <AnimatePresence>
+                    {notification && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="fixed bottom-8 right-8 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl bg-black border border-white/10 shadow-2xl shadow-red-600/20"
+                        >
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${notification.type === 'success' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                                <span className="material-symbols-outlined text-sm">{notification.type === 'success' ? 'check' : 'close'}</span>
+                            </div>
+                            <p className="text-sm font-bold text-white tracking-wide">{notification.message}</p>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </AuthGuard>
     );
