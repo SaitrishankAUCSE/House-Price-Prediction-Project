@@ -63,6 +63,8 @@ export default function SellerPage() {
         }
     }, []);
 
+    const allIndianCities = ["Agra", "Ahmedabad", "Amritsar", "Bangalore", "Bhopal", "Bhubaneswar", "Chandigarh", "Chennai", "Coimbatore", "Dehradun", "Delhi", "Faridabad", "Ghaziabad", "Gurgaon", "Guwahati", "Hyderabad", "Indore", "Jaipur", "Jamshedpur", "Kanpur", "Kochi", "Kolkata", "Lucknow", "Ludhiana", "Madurai", "Mangalore", "Meerut", "Mumbai", "Mysore", "Nagpur", "Nashik", "Noida", "Patna", "Pune", "Raipur", "Rajkot", "Ranchi", "Surat", "Thiruvananthapuram", "Vadodara", "Varanasi", "Visakhapatnam"];
+
     // Get unique cities from all properties
     const cities = [...new Set([...localProperties, ...properties].map(p => p.city))].sort();
 
@@ -122,7 +124,7 @@ export default function SellerPage() {
     };
 
     // Filter properties by selected city
-    const allCityProperties = [...localProperties, ...properties].filter(p => p.city === selectedCity);
+    const allCityProperties = [...localProperties, ...properties].filter(p => selectedCity === 'All' || p.city === selectedCity);
     const myListings = allCityProperties.slice(0, 8).map((p, i) => ({
         ...p,
         status: p.status === 'sold' ? 'Sold' : p.status === 'pending' ? 'Negotiation' : p.status || 'Active',
@@ -154,6 +156,7 @@ export default function SellerPage() {
                                     className="bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl px-4 py-2.5 focus:outline-none focus:border-primary/50 appearance-none cursor-pointer hover:bg-white/10 transition-all"
                                     style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'white\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: '36px' }}
                                 >
+                                    <option value="All" className="bg-black text-white">ALL CITIES</option>
                                     {cities.map(c => (
                                         <option key={c} value={c} className="bg-black text-white">{c}</option>
                                     ))}
@@ -690,7 +693,7 @@ export default function SellerPage() {
                                     <div>
                                         <label className="block text-xs font-bold text-white/60 uppercase tracking-widest mb-2">City</label>
                                         <select value={newProperty.city} onChange={e => setNewProperty({...newProperty, city: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary/50 appearance-none">
-                                            {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                                            {allIndianCities.map(c => <option key={c} value={c}>{c}</option>)}
                                         </select>
                                     </div>
                                     <div>
