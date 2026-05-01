@@ -72,7 +72,7 @@ function DiscoveryTab({ savedIds, onSave, onSelect }) {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('userProperties');
             if (saved) {
-                try { 
+                try {
                     userProps = JSON.parse(saved).map(p => ({
                         ...p,
                         marketTemp: p.marketTemp || 'hot',
@@ -85,8 +85,8 @@ function DiscoveryTab({ savedIds, onSave, onSelect }) {
                         status: p.status || 'active',
                         trending: true,
                         newListing: true
-                    })); 
-                } catch(e) {}
+                    }));
+                } catch (e) { }
             }
         }
 
@@ -287,13 +287,13 @@ function PropertyDetailTab({ selectedProperty, savedIds, onSave, handleTourReque
                     <p className="text-xs text-white/40 font-medium">Connect with an agent to proceed with viewing or purchase.</p>
                 </div>
                 <div className="flex gap-3">
-                    <button 
+                    <button
                         onClick={() => handleTourRequest(p)}
                         className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
                     >
                         <span className="material-symbols-outlined text-sm text-amber-500">event</span> Schedule Tour
                     </button>
-                    <button 
+                    <button
                         onClick={() => handleMakeOffer(p)}
                         className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center gap-2"
                     >
@@ -1343,7 +1343,7 @@ export default function BuyerPage() {
     useEffect(() => {
         const saved = localStorage.getItem('buyerSavedIds');
         if (saved) setSavedIds(new Set(JSON.parse(saved)));
-        
+
         const tours = localStorage.getItem('buyerTourRequests');
         if (tours) setLocalTourRequests(JSON.parse(tours));
 
