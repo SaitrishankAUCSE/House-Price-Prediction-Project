@@ -312,51 +312,51 @@ function PropertyDetailTab({ selectedProperty, savedIds, onSave, handleTourReque
 }
 
 // ==================== 3. AI PREDICTOR ====================
-function PredictorTab() {
-    const [form, setForm] = useState({
-        city: 'Mumbai',
-        locality: '', // New Field
-        sqft: 1000,
-        bedrooms: 2,
-        floor: 5,
-        age: 2,
-        propertyType: 'Apartment',
-        furnishing: 'Semi-Furnished',
-        constructionStatus: 'Ready to Move',
-        facing: 'East',
-        // Property Structure
-        bathrooms: 2,
-        balconies: 1,
-        totalFloors: 10,
-        unitPosition: 'Middle',
-        parking: 'Open',
-        servantRoom: 'No',
-        studyRoom: 'No',
-        // Direction & View
-        mainDoorFacing: 'East',
-        balconyFacing: 'North',
-        parkFacing: 'No',
-        gardenView: 'No',
-        seaLakeView: 'No',
-        roadView: 'No',
-        // Amenities
-        amenities: ['Security', 'Lift', 'Power backup'],
-        // Building & Legal
-        builderReputation: 'Standard',
-        reraApproved: 'Yes',
-        occupancyCertificate: 'Yes',
-        gatedCommunity: 'Yes',
-        // Investment Intent
-        intent: 'Self Use',
-        // Connectivity
-        distanceMetro: 2,
-        highwayAccess: 5,
-        airportDistance: 15,
-        businessHubDistance: 10
-    });
-    const [result, setResult] = useState(null);
+// Default form values (used for initialization)
+const PREDICTOR_DEFAULTS = {
+    city: 'Mumbai',
+    locality: '',
+    sqft: 1000,
+    bedrooms: 2,
+    floor: 5,
+    age: 2,
+    propertyType: 'Apartment',
+    furnishing: 'Semi-Furnished',
+    constructionStatus: 'Ready to Move',
+    facing: 'East',
+    // Property Structure
+    bathrooms: 2,
+    balconies: 1,
+    totalFloors: 10,
+    unitPosition: 'Middle',
+    parking: 'Open',
+    servantRoom: 'No',
+    studyRoom: 'No',
+    // Direction & View
+    mainDoorFacing: 'East',
+    balconyFacing: 'North',
+    parkFacing: 'No',
+    gardenView: 'No',
+    seaLakeView: 'No',
+    roadView: 'No',
+    // Amenities
+    amenities: ['Security', 'Lift', 'Power backup'],
+    // Building & Legal
+    builderReputation: 'Standard',
+    reraApproved: 'Yes',
+    occupancyCertificate: 'Yes',
+    gatedCommunity: 'Yes',
+    // Investment Intent
+    intent: 'Self Use',
+    // Connectivity
+    distanceMetro: 2,
+    highwayAccess: 5,
+    airportDistance: 15,
+    businessHubDistance: 10
+};
+
+function PredictorTab({ form, setForm, result, setResult, hasPredicted, setHasPredicted, generatedImage, setGeneratedImage }) {
     const [error, setError] = useState(null);
-    const [hasPredicted, setHasPredicted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [openSection, setOpenSection] = useState(null); // 'structure', 'view', 'amenities', 'legal', 'intent'
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -364,7 +364,6 @@ function PredictorTab() {
     const [loanParams, setLoanParams] = useState({ down: 20, tenure: 20, rate: 8.75 });
 
     // AI Image Generation State
-    const [generatedImage, setGeneratedImage] = useState(null);
     const [generatingImage, setGeneratingImage] = useState(false);
 
     const validateForm = (f) => {
@@ -866,18 +865,32 @@ function PredictorTab() {
                                 )}
                             </div>
                             {result && (
-                                <>
-                                    <div className="grid grid-cols-2 gap-4 mb-6 animate-in slide-in-from-bottom-4 duration-700 delay-300">
-                                        <div className="bg-white/5 rounded-xl p-4 text-center">
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 20 }} 
+                                    animate={{ opacity: 1, y: 0 }} 
+                                    transition={{ duration: 0.5, staggerChildren: 0.1 }}
+                                >
+                                    <motion.div 
+                                        className="grid grid-cols-2 gap-4 mb-6"
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.5, delay: 0.2 }}
+                                    >
+                                        <div className="bg-white/5 rounded-xl p-4 text-center border border-white/5 hover:border-red-500/30 transition-colors">
                                             <div className="text-2xl font-['Anton'] text-green-600">{result.confidence}%</div>
-                                            <div className="text-[9px] font-bold text-white/40 uppercase tracking-wider mt-1">Confidence</div>
+                                            <div className="text-[9px] font-bold text-white/40 uppercase tracking-wider mt-1">AI Confidence</div>
                                         </div>
-                                        <div className="bg-white/5 rounded-xl p-4 text-center">
+                                        <div className="bg-white/5 rounded-xl p-4 text-center border border-white/5 hover:border-red-500/30 transition-colors">
                                             <div className="text-2xl font-['Anton'] text-white">₹{result.pricePerSqft.toLocaleString()}</div>
-                                            <div className="text-[9px] font-bold text-white/40 uppercase tracking-wider mt-1">Per Sq.Ft</div>
+                                            <div className="text-[9px] font-bold text-white/40 uppercase tracking-wider mt-1">Per Sq.Ft Base</div>
                                         </div>
-                                    </div>
-                                    <div className="h-48 animate-in slide-in-from-bottom-8 duration-700 delay-500">
+                                    </motion.div>
+                                    <motion.div 
+                                        className="h-48"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.6, delay: 0.4 }}
+                                    >
                                         <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] mb-3">12-Month Market Trend (₹ Lakhs)</p>
                                         <ResponsiveContainer width="100%" height="100%">
                                             <AreaChart data={trendData}>
@@ -897,8 +910,8 @@ function PredictorTab() {
                                                 <Area type="monotone" dataKey="avgPrice" stroke={ACCENT} fill="url(#cp)" strokeWidth={2} />
                                             </AreaChart>
                                         </ResponsiveContainer>
-                                    </div>
-                                </>
+                                    </motion.div>
+                                </motion.div>
                             )}
                         </div>
                     ) : (
@@ -1334,6 +1347,13 @@ export default function BuyerPage() {
     const [localTourRequests, setLocalTourRequests] = useState([]);
     const [localOffers, setLocalOffers] = useState([]);
     const [selectedProperty, setSelectedProperty] = useState(null);
+    const [activeTab, setActiveTab] = useState('predictor');
+
+    // Lifted predictor state — persists across tab switches for deterministic results
+    const [predictorForm, setPredictorForm] = useState(PREDICTOR_DEFAULTS);
+    const [predictorResult, setPredictorResult] = useState(null);
+    const [predictorHasPredicted, setPredictorHasPredicted] = useState(false);
+    const [predictorImage, setPredictorImage] = useState(null);
 
     const showNotification = (message, type = 'success') => {
         setNotification({ message, type });
@@ -1420,7 +1440,7 @@ export default function BuyerPage() {
                         <TabBar tabs={tabs.map(t => ({ ...t, badge: t.id === 'saved' ? savedIds.size : t.id === 'actions' ? notifications.filter(n => !n.read).length : 0 }))} active={activeTab} onChange={setActiveTab} accent={ACCENT} />
                         {activeTab === 'discovery' && <DiscoveryTab savedIds={savedIds} onSave={toggleSave} onSelect={selectProp} />}
                         {activeTab === 'detail' && <PropertyDetailTab selectedProperty={selectedProperty} savedIds={savedIds} onSave={toggleSave} handleTourRequest={handleTourRequest} handleMakeOffer={handleMakeOffer} />}
-                        {activeTab === 'predictor' && <PredictorTab />}
+                        {activeTab === 'predictor' && <PredictorTab form={predictorForm} setForm={setPredictorForm} result={predictorResult} setResult={setPredictorResult} hasPredicted={predictorHasPredicted} setHasPredicted={setPredictorHasPredicted} generatedImage={predictorImage} setGeneratedImage={setPredictorImage} />}
                         {activeTab === 'financial' && <FinancialTab />}
                         {activeTab === 'saved' && <SavedTab savedIds={savedIds} onSave={toggleSave} onSelect={selectProp} />}
                         {activeTab === 'actions' && <ActionsTab tourRequests={localTourRequests} buyerOffers={localOffers} />}
