@@ -8,6 +8,19 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 export const metadata = {
     title: 'HomieNest - AI-Powered Real Estate',
     description: 'India\'s most accurate platform for real-time house price forecasting, neighborhood analytics, and premium blue-chip property investment insights.',
+    manifest: '/manifest.json',
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: "HomieNest",
+    },
+};
+
+export const viewport = {
+    themeColor: '#000000',
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
 };
 
 import { ThemeProvider } from '@/components/theme-provider';
